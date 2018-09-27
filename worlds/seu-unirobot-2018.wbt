@@ -1,0 +1,44 @@
+#VRML_SIM R2018b utf8
+WorldInfo {
+  info [
+    "ROBOTIS OP2 robot."
+    "The ROBOTIS OP2 robot simulation model can be programmed using the ROBOTIS OP2 motions files and the ROBOTIS OP2 walk control library."
+  ]
+  title "ROBOTIS OP2"
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation 0.9999011094041914 -0.010246858217293958 -0.009631890206077302 4.707008847967331
+  position -1.6655186536849413 24.09678078403688 0.9394991280658581
+  follow "ROBOTIS OP2"
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction -0.5 -2 -0.5
+  intensity 0.7
+  castShadows TRUE
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction 0.5 -0.5 0.5
+  intensity 0.7
+}
+Field {
+  #frame1Color 0.9 0.8 0.2
+}
+DEF ROBOTISOP2 RobotisOp2 {
+  translation -0.75 0.233277 2.85
+  rotation 0 1 0 -1.57
+  controller "unirobot"
+  controllerArgs "2"
+  cameraWidth 320
+  cameraHeight 240
+}
+SBall {
+  translation 0 0.06 0
+}
