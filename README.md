@@ -1,3 +1,5 @@
-seu-unirobot-2018.zip为本次比赛所使用的webots工程
-webots的基本使用及打开工程请阅读"如何使用.pdf"
-控制程序的编写请阅读"程序说明.pdf"
+seu-unirobot-2018.zip涓烘湰娆℃瘮璧涙墍浣跨敤鐨剋ebots宸ョ▼
+
+webots鐨勫熀鏈娇鐢ㄥ強鎵撳紑宸ョ▼璇烽槄璇籟濡備綍浣跨敤.pdf](https://github.com/Sciroccogti/JadyKidsize/blob/master/Official%20Info/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8.pdf)
+
+鎺у埗绋嬪簭鐨勭紪鍐欒闃呰[绋嬪簭璇存槑.pdf](https://github.com/Sciroccogti/JadyKidsize/blob/master/Official%20Info/%E7%A8%8B%E5%BA%8F%E8%AF%B4%E6%98%8E.pdf)
