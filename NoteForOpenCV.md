@@ -36,9 +36,11 @@ Mat E = A(Range:all(), Range(1,3)); //只引用边界参数
 
 ### 扫描图像和查找表
 ![](http://www.opencv.org.cn/opencvdoc/2.3.2/html/_images/math/d741bf066ad4641450e60523988450519478814d.png)
+
 灰度图像矩阵
 
 ![](http://www.opencv.org.cn/opencvdoc/2.3.2/html/_images/math/154cd030d6aa7d29c35852ac468a3e3e14b882bf.png)
+
 RGB颜色模型的矩阵
 
 **子列的通道顺序为BGR而非RGB！**
