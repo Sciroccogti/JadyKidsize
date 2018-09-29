@@ -1,0 +1,83 @@
+#VRML_SIM R2018b utf8
+WorldInfo {
+  info [
+    "ROBOTIS OP2 robot."
+    "The ROBOTIS OP2 robot simulation model can be programmed using the ROBOTIS OP2 motions files and the ROBOTIS OP2 walk control library."
+  ]
+  title "ROBOTIS OP2"
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation -0.03605875826220827 0.9993094358995309 -0.008967567939473923 4.862596254749856
+  position -1.961031234038627 0.1473472264694485 2.933235328966671
+  follow "ROBOTIS OP2"
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction -0.5 -2 -0.5
+  intensity 0.7
+  castShadows TRUE
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction 0.5 -0.5 0.5
+  intensity 0.7
+}
+Field {
+}
+DEF ROBOTISOP2 RobotisOp2 {
+  hidden position_0_0 2.1923368291096768e-8
+  hidden position_0_1 -0.02000062885899954
+  hidden position_0_2 -0.010000502642387268
+  hidden position_0_3 0.7199999422549859
+  hidden position_0_4 -0.8399999308328319
+  hidden rotation_11 0 1 0 2.9802322387695313e-8
+  hidden position_11_0 0.1899999720879602
+  hidden rotation_12 1 0 0 0.5954000279120405
+  hidden rotation_16 0 1 0 0.020000628859007507
+  hidden position_16_0 -0.010000598527987173
+  hidden rotation_17 0 0 1 0.010000598527975937
+  hidden position_17_0 1.14999945485082
+  hidden rotation_18 -1 0 0 1.14999945485082
+  hidden position_18_0 -2.250001381637574
+  hidden rotation_19 1 0 0 2.250001381637574
+  hidden position_19_0 -1.2299995025684185
+  hidden rotation_20 -1 0 0 1.2299995025684185
+  hidden position_20_0 -0.01999938409525087
+  hidden rotation_21 0 0 -1 0.019999384095245206
+  hidden rotation_22 0 1 0 0.01000050264240453
+  hidden position_22_0 0.02000059677991656
+  hidden rotation_23 0 0 -1 0.02000059677991672
+  hidden position_23_0 -1.1499995169702564
+  hidden rotation_24 -1 0 0 1.1499995169702564
+  hidden position_24_0 2.2500006706680034
+  hidden rotation_25 1 0 0 2.2500006706680034
+  hidden position_25_0 1.2200004834885947
+  hidden rotation_26 -1 0 0 1.2200004834885947
+  hidden position_26_0 0.04999940201357696
+  hidden rotation_27 0 0 1 0.04999940201357627
+  hidden rotation_28 0.9999999999999999 0 0 0.7199999422549862
+  hidden position_28_0 0.36000003633166544
+  hidden rotation_29 0 0 0.9999999999999999 0.4253999636683345
+  hidden position_29_0 -0.5199999787621461
+  hidden rotation_30 -1 0 0 2.0907999787621465
+  hidden rotation_31 1 0 0 0.8399999308328319
+  hidden position_31_0 -0.3300000443590054
+  hidden rotation_32 0 0 -0.9999999999999999 0.4553999556409934
+  hidden position_32_0 0.5099999811388403
+  hidden rotation_33 -1 0 0 2.0807999811388402
+  translation -0.7798021755451289 0.23414663114725037 2.8515314086956596
+  rotation -0.06525437148008253 0.9961281823805679 -0.0589110453983389 -1.5739509460224272
+  controller "unirobot"
+  controllerArgs "2"
+  cameraWidth 320
+  cameraHeight 240
+}
+SBall {
+  translation 0 0.05992152007537148 0
+}

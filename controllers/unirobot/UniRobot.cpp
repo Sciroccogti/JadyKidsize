@@ -149,20 +149,21 @@ void UniRobot::run()
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.5, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
       else if(mode == MODE_LINE) //mode line
       {
         //walk control
-        mGaitManager->setXAmplitude(0.0); //x -1.0 ~ 1.0
+        mGaitManager->setBalanceEnable(false);
+        mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
         mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
         mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.3, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }

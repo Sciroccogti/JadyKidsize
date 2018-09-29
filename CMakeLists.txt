@@ -1,0 +1,125 @@
+cmake_minimum_required(VERSION 3.12)
+project(JadyKidsize)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(controllers/unirobot)
+include_directories(libraries/managers/include)
+include_directories(libraries/robotis-op2/robotis/Framework/include)
+include_directories(libraries/robotis-op2/robotis/Framework/src/minIni)
+include_directories(libraries/robotis-op2/robotis/Linux)
+include_directories(libraries/robotis-op2/robotis/Linux/include)
+include_directories(plugins/remote_controls/robotis-op2_tcpip)
+include_directories(plugins/robot_windows/robotis-op2_window)
+#include_directories(D:/Webots/include/controller/cpp)
+#include_directories(D:/Webots/msys64/mingw64/include)
+#include_directories(D:/Webots/msys64/mingw64/x86_64-w64-mingw32/include)
+include_directories(include/cpp)
+#include_directories(D:/Python/include)
+
+add_executable(JadyKidsize
+        controllers/unirobot/main.cpp
+        controllers/unirobot/UniRobot.cpp
+        controllers/unirobot/UniRobot.hpp
+        libraries/managers/include/RobotisOp2DirectoryManager.hpp
+        libraries/managers/include/RobotisOp2GaitManager.hpp
+        libraries/managers/include/RobotisOp2MotionManager.hpp
+        libraries/managers/include/RobotisOp2MotionTimerManager.hpp
+        libraries/managers/include/RobotisOp2VisionManager.hpp
+        libraries/managers/src/RobotisOp2DirectoryManager.cpp
+        libraries/managers/src/RobotisOp2GaitManager.cpp
+        libraries/managers/src/RobotisOp2MotionManager.cpp
+        libraries/managers/src/RobotisOp2MotionTimerManager.cpp
+        libraries/managers/src/RobotisOp2VisionManager.cpp
+        libraries/python/managers.i
+        libraries/python/managers27.cpp
+        libraries/robotis-op2/robotis/Framework/include/Action.h
+        libraries/robotis-op2/robotis/Framework/include/BallFollower.h
+        libraries/robotis-op2/robotis/Framework/include/BallTracker.h
+        libraries/robotis-op2/robotis/Framework/include/Camera.h
+        libraries/robotis-op2/robotis/Framework/include/CM730.h
+        libraries/robotis-op2/robotis/Framework/include/ColorFinder.h
+        libraries/robotis-op2/robotis/Framework/include/DARwIn.h
+        libraries/robotis-op2/robotis/Framework/include/FSR.h
+        libraries/robotis-op2/robotis/Framework/include/Head.h
+        libraries/robotis-op2/robotis/Framework/include/Image.h
+        libraries/robotis-op2/robotis/Framework/include/ImgProcess.h
+        libraries/robotis-op2/robotis/Framework/include/JointData.h
+        libraries/robotis-op2/robotis/Framework/include/Kinematics.h
+        libraries/robotis-op2/robotis/Framework/include/Matrix.h
+        libraries/robotis-op2/robotis/Framework/include/minIni.h
+        libraries/robotis-op2/robotis/Framework/include/MotionManager.h
+        libraries/robotis-op2/robotis/Framework/include/MotionModule.h
+        libraries/robotis-op2/robotis/Framework/include/MotionStatus.h
+        libraries/robotis-op2/robotis/Framework/include/MX28.h
+        libraries/robotis-op2/robotis/Framework/include/Plane.h
+        libraries/robotis-op2/robotis/Framework/include/Point.h
+        libraries/robotis-op2/robotis/Framework/include/Vector.h
+        libraries/robotis-op2/robotis/Framework/include/Walking.h
+        libraries/robotis-op2/robotis/Framework/src/math/Matrix.cpp
+        libraries/robotis-op2/robotis/Framework/src/math/Plane.cpp
+        libraries/robotis-op2/robotis/Framework/src/math/Point.cpp
+        libraries/robotis-op2/robotis/Framework/src/math/Vector.cpp
+        libraries/robotis-op2/robotis/Framework/src/minIni/minGlue.h
+        libraries/robotis-op2/robotis/Framework/src/minIni/minIni.c
+        libraries/robotis-op2/robotis/Framework/src/minIni/minIni.h
+        libraries/robotis-op2/robotis/Framework/src/minIni/wxMinIni.h
+        libraries/robotis-op2/robotis/Framework/src/motion/modules/Action.cpp
+        libraries/robotis-op2/robotis/Framework/src/motion/modules/Head.cpp
+        libraries/robotis-op2/robotis/Framework/src/motion/modules/Walking.cpp
+        libraries/robotis-op2/robotis/Framework/src/motion/JointData.cpp
+        libraries/robotis-op2/robotis/Framework/src/motion/Kinematics.cpp
+        libraries/robotis-op2/robotis/Framework/src/motion/MotionManager.cpp
+        libraries/robotis-op2/robotis/Framework/src/motion/MotionStatus.cpp
+        libraries/robotis-op2/robotis/Framework/src/vision/BallFollower.cpp
+        libraries/robotis-op2/robotis/Framework/src/vision/BallTracker.cpp
+        libraries/robotis-op2/robotis/Framework/src/vision/Camera.cpp
+        libraries/robotis-op2/robotis/Framework/src/vision/ColorFinder.cpp
+        libraries/robotis-op2/robotis/Framework/src/vision/Image.cpp
+        libraries/robotis-op2/robotis/Framework/src/vision/ImgProcess.cpp
+        libraries/robotis-op2/robotis/Framework/src/CM730.cpp
+        libraries/robotis-op2/robotis/Framework/src/MX28.cpp
+        libraries/robotis-op2/robotis/Linux/include/LinuxActionScript.h
+        libraries/robotis-op2/robotis/Linux/include/LinuxCamera.h
+        libraries/robotis-op2/robotis/Linux/include/LinuxCM730.h
+        libraries/robotis-op2/robotis/Linux/include/LinuxDARwIn.h
+        libraries/robotis-op2/robotis/Linux/include/LinuxMotionTimer.h
+        libraries/robotis-op2/robotis/Linux/include/LinuxNetwork.h
+        libraries/robotis-op2/robotis/Linux/include/mjpg_streamer.h
+        libraries/Makefile
+        plugins/remote_controls/robotis-op2_tcpip/Camera.cpp
+        plugins/remote_controls/robotis-op2_tcpip/Camera.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Communication.cpp
+        plugins/remote_controls/robotis-op2_tcpip/Communication.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Device.cpp
+        plugins/remote_controls/robotis-op2_tcpip/Device.hpp
+        plugins/remote_controls/robotis-op2_tcpip/DeviceManager.cpp
+        plugins/remote_controls/robotis-op2_tcpip/DeviceManager.hpp
+        plugins/remote_controls/robotis-op2_tcpip/entry_points.cpp
+        plugins/remote_controls/robotis-op2_tcpip/entry_points.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Led.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Motor.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Packet.cpp
+        plugins/remote_controls/robotis-op2_tcpip/Packet.hpp
+        plugins/remote_controls/robotis-op2_tcpip/RobotisOp2InputPacket.cpp
+        plugins/remote_controls/robotis-op2_tcpip/RobotisOp2InputPacket.hpp
+        plugins/remote_controls/robotis-op2_tcpip/RobotisOp2OutputPacket.cpp
+        plugins/remote_controls/robotis-op2_tcpip/RobotisOp2OutputPacket.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Sensor.hpp
+        plugins/remote_controls/robotis-op2_tcpip/SingleValueSensor.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Time.cpp
+        plugins/remote_controls/robotis-op2_tcpip/Time.hpp
+        plugins/remote_controls/robotis-op2_tcpip/TripleValuesSensor.hpp
+        plugins/remote_controls/robotis-op2_tcpip/Wrapper.cpp
+        plugins/remote_controls/robotis-op2_tcpip/Wrapper.hpp
+        plugins/robot_windows/robotis-op2_window/common.hpp
+        plugins/robot_windows/robotis-op2_window/entry_points.cpp
+        plugins/robot_windows/robotis-op2_window/entry_points.hpp
+        plugins/robot_windows/robotis-op2_window/SSH.cpp
+        plugins/robot_windows/robotis-op2_window/SSH.hpp
+        plugins/robot_windows/robotis-op2_window/TransferWidget.cpp
+        plugins/robot_windows/robotis-op2_window/TransferWidget.hpp
+        plugins/robot_windows/robotis-op2_window/Viewer.cpp
+        plugins/robot_windows/robotis-op2_window/Viewer.hpp
+        plugins/robot_windows/robotis-op2_window/ZIP.cpp
+        plugins/robot_windows/robotis-op2_window/ZIP.hpp)
