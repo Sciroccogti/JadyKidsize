@@ -156,7 +156,6 @@ void UniRobot::run()
       else if(mode == MODE_LINE) //mode line
       {
         //walk control
-        mGaitManager->setBalanceEnable(false);
         mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
         mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
         mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
