@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{DBE9D56F-366B-42C5-9BF9-AEDBC8647969}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>D:\OpenCV\build\x64\vc14\lib;D:\OpenCV\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;JADYKIDSIZE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>libraries\robotis-op2\robotis\Framework\include;libraries\managers\include;D:\Webots\msys64\mingw64\include;D:\Webots\include\controller\cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;JADYKIDSIZE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>libraries\robotis-op2\robotis\Framework\include;libraries\managers\include;D:\Webots\msys64\mingw64\include;D:\Webots\include\controller\cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>D:\Webots\msys64\mingw64\lib;D:\OpenCV\build\x64\vc14\lib;D:\OpenCV\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world343.lib;opencv_world343d.lib;opencv_world400.lib;opencv_world400d.lib;car.lib;Controller.lib;driver.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="controllers\unirobot\main.cpp" />
+    <ClCompile Include="controllers\unirobot\UniRobot.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="controllers\unirobot\UniRobot.hpp" />
+    <ClInclude Include="libraries\managers\include\RobotisOp2DirectoryManager.hpp" />
+    <ClInclude Include="libraries\managers\include\RobotisOp2GaitManager.hpp" />
+    <ClInclude Include="libraries\managers\include\RobotisOp2MotionManager.hpp" />
+    <ClInclude Include="libraries\managers\include\RobotisOp2MotionTimerManager.hpp" />
+    <ClInclude Include="libraries\managers\include\RobotisOp2VisionManager.hpp" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Action.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\BallFollower.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\BallTracker.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Camera.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\CM730.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\ColorFinder.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\DARwIn.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\FSR.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Head.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Image.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\ImgProcess.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\JointData.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Kinematics.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Matrix.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\minIni.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\MotionManager.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\MotionModule.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\MotionStatus.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\MX28.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Plane.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Point.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Vector.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\include\Walking.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\src\minini\minGlue.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\src\minini\minIni.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\framework\src\minini\wxMinIni.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\linux\include\LinuxActionScript.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\linux\include\LinuxCamera.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\linux\include\LinuxCM730.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\linux\include\LinuxDARwIn.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\linux\include\LinuxMotionTimer.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\linux\include\LinuxNetwork.h" />
+    <ClInclude Include="libraries\robotis-op2\robotis\linux\include\mjpg_streamer.h" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Camera.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Communication.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Device.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\DeviceManager.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\entry_points.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Led.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Motor.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Packet.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\RobotisOp2InputPacket.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\RobotisOp2OutputPacket.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Sensor.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\SingleValueSensor.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Time.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\TripleValuesSensor.hpp" />
+    <ClInclude Include="plugins\remote_controls\robotis-op2_tcpip\Wrapper.hpp" />
+    <ClInclude Include="plugins\robot_windows\robotis-op2_window\common.hpp" />
+    <ClInclude Include="plugins\robot_windows\robotis-op2_window\entry_points.hpp" />
+    <ClInclude Include="plugins\robot_windows\robotis-op2_window\SSH.hpp" />
+    <ClInclude Include="plugins\robot_windows\robotis-op2_window\TransferWidget.hpp" />
+    <ClInclude Include="plugins\robot_windows\robotis-op2_window\Viewer.hpp" />
+    <ClInclude Include="plugins\robot_windows\robotis-op2_window\ZIP.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libraries\robotis-op2\robotis\data\motion_4096.bin" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
