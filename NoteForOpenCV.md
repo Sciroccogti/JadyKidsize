@@ -1,8 +1,44 @@
 #   [OpenCV学习笔记](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/tutorials.html)
-本笔记为为完成Robocup竞赛中KidSize组而做的OpenCV的学习
+- [OpenCV学习笔记](#opencv学习笔记)
+    - [core模块，核心功能](#core模块核心功能)
+        - [MAT-基本图像容器](#mat-基本图像容器)
+        - [扫描图像和查找表](#扫描图像和查找表)
+        - [矩阵的掩码操作](#矩阵的掩码操作)
+        - [图像求和](#图像求和)
+        - [更改对比度与亮度](#更改对比度与亮度)
+        - [基本绘图](#基本绘图)
+        - [随机数发生器与绘制文字](#随机数发生器与绘制文字)
+        - [离散傅里叶变换](#离散傅里叶变换)
+        - [输入输出XML和YAML文件](#输入输出xml和yaml文件)
+        - [与OpenCV 1 同时使用](#与opencv-1-同时使用)
+    - [imgproc模块：图像处理](#imgproc模块图像处理)
+        - [图形平滑处理](#图形平滑处理)
+        - [腐蚀与膨胀](#腐蚀与膨胀)
+        - [更多形态学变换](#更多形态学变换)
+        - [图像金字塔](#图像金字塔)
+    - [其余较重要的OpenCV教程目录](#其余较重要的opencv教程目录)
+        - [给图像添加边界](#给图像添加边界)
+        - [Canny边缘检测](#canny边缘检测)
+        - [霍夫线变换——用于检测直线](#霍夫线变换用于检测直线)
+        - [霍夫圆变换——用于检测圆](#霍夫圆变换用于检测圆)
+        - [重映射——用于对图像进行简单变换，如翻转等](#重映射用于对图像进行简单变换如翻转等)
+        - [仿射变换——高级线性变换](#仿射变换高级线性变换)
+        - [直方图均值化](#直方图均值化)
+        - [反向投影](#反向投影)
+        - [模板匹配](#模板匹配)
+        - [在图像中检测轮廓](#在图像中检测轮廓)
 
+本笔记为为完成Robocup竞赛中KidSize组而做的OpenCV的学习
+***
 **笔记中各标题均为原教程链接**
 
+培训强调内容导航：
+*   开闭与顶帽：[更多形态学变换](#更多形态学变换)
+*   直方图均衡：[直方图均值化](#直方图均值化)
+*   掩膜：[矩阵的掩码操作](#矩阵的掩码操作)
+
+学习建议：先看完[core模块，核心功能](#core模块核心功能)，再看培训强调内容，最后看其它内容
+***
 ##  [core模块，核心功能](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/core/table_of_content_core/table_of_content_core.html)
 ### [MAT-基本图像容器](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/core/mat%20-%20the%20basic%20image%20container/mat%20-%20the%20basic%20image%20container.html)
 *Mat*是一个类，由两个数据部分组成：
@@ -321,7 +357,7 @@ int main( int argc, char** argv )
 其余部分参见原教程
 
 ### [腐蚀与膨胀](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/erosion_dilatation/erosion_dilatation.html)
-**开闭操作即基于此！**培训PPT强调内容！
+**开闭操作即基于此！**
 
 **形态学操作**：基于形状的一系列图像处理操作。通过将*结构元素*作用于输入图像来产生输出图像。
 
@@ -373,3 +409,138 @@ void Erosion( int, void* )
 }
 ```
 
+### [更多形态学变换](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/opening_closing_hats/opening_closing_hats.html)
+培训PPT强调内容！
+
+本部分均可使用`morphologyEx()`函数，参数为输入图像，输出图像，运算类型，核（一般使用函数`getStructuringElement()`函数导出内核），锚点位置，迭代次数，边界模式
+
+**开运算**：
+1.  先腐蚀，再膨胀，达到去除小块亮色区域的效果
+2.  `dilate(erode(src, element))`
+3.  参数：MORPH_OPEN
+
+**闭运算**：
+1.  先膨胀，再腐蚀，达到去除小块黑洞的效果
+2.  `erode(dilate(src, element))`
+3.  参数：MORPH_CLOSE
+
+**形态梯度**：
+1.  膨胀图与腐蚀图之差
+2.  `dilate(src, element) - erode(src, element)`
+3.  参数：MORPH_GRADIENT
+
+**顶帽**：
+1.  原图像与开运算结果之差
+2.  达到突出比原图轮廓周围更明亮的区域（即被开运算去除的小块亮色）
+3.  参数：MORPH_TOPHAT
+
+**黑帽**：
+1.  闭运算结果与原图像之差
+2.  达到突出比原图轮廓周围更暗的区域，能获得完美的轮廓
+3.  参数：MORPH_BLACKHAT
+
+另：腐蚀与膨胀可用MORPH_ERODE，MORPH_DILATE参数
+
+示例：
+```C++
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <stdlib.h>
+#include <stdio.h>
+
+using namespace cv;
+
+// 全局变量
+Mat src, dst;
+
+int morph_elem = 0;
+int morph_size = 0;
+int morph_operator = 0;
+int const max_operator = 4;
+int const max_elem = 2;
+int const max_kernel_size = 21;
+
+char* window_name = "Morphology Transformations Demo";
+
+// 回调函数申明
+void Morphology_Operations( int, void* );
+
+int main( int argc, char** argv )
+{
+ // 装载图像
+  src = imread( argv[1] );
+
+  if( !src.data )
+  { return -1; }
+
+ // 创建显示窗口
+ namedWindow( window_name, CV_WINDOW_AUTOSIZE );
+
+ // 创建选择具体操作的 trackbar
+ createTrackbar("Operator:\n 0: Opening - 1: Closing \n 2: Gradient - 3: Top Hat \n 4: Black Hat", window_name, &morph_operator, max_operator, Morphology_Operations );
+
+ // 创建选择内核形状的 trackbar
+ createTrackbar( "Element:\n 0: Rect - 1: Cross - 2: Ellipse", window_name,
+                 &morph_elem, max_elem,
+                 Morphology_Operations );
+
+ // 创建选择内核大小的 trackbar
+ createTrackbar( "Kernel size:\n 2n +1", window_name,
+                 &morph_size, max_kernel_size,
+                 Morphology_Operations );
+
+ // 启动使用默认值
+ Morphology_Operations( 0, 0 );
+
+ waitKey(0);
+ return 0;
+ }
+
+void Morphology_Operations( int, void* )
+{
+  // 由于 MORPH_X的取值范围是: 2,3,4,5 和 6
+  int operation = morph_operator + 2;
+
+  Mat element = getStructuringElement( morph_elem, Size( 2*morph_size + 1, 2*morph_size+1 ), Point( morph_size, morph_size ) );
+
+  // 运行指定形态学操作
+  morphologyEx( src, dst, operation, element );
+  imshow( window_name, dst );
+  }
+  ```
+
+### [图像金字塔](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/pyramids/pyramids.html)
+用于将图像转换尺寸
+
+略
+
+## 其余较重要的OpenCV教程目录
+由于之后的内容原理比较艰深，偏重应用，故仅放出链接
+### [给图像添加边界](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/copyMakeBorder/copyMakeBorder.html)
+
+### [Canny边缘检测](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html)
+
+### [霍夫线变换——用于检测直线](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html)
+
+### [霍夫圆变换——用于检测圆](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/hough_circle/hough_circle.html)
+
+### [重映射——用于对图像进行简单变换，如翻转等](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/remap/remap.html)
+
+### [仿射变换——高级线性变换](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/warp_affine/warp_affine.html)
+
+### [直方图均值化](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/histograms/histogram_equalization/histogram_equalization.html)
+直方图表现图像中像素强度的分布，统计了每个强度值所具有的像素个数
+
+直方图均值化即是将各个强度值所具有的像素数尽量的平均
+
+`equalizeHist(src, dst)`函数
+
+### [反向投影](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/histograms/back_projection/back_projection.html)
+根据已得到的某物体的直方图，在新的图像中检测与该物体色调相近的区域
+
+### [模板匹配](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/histograms/template_matching/template_matching.html)
+在输入图像中寻找与模板图像最相似的区域
+
+### [在图像中检测轮廓](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/shapedescriptors/find_contours/find_contours.html)
+
+接下来就是视频流和机器学习了，恭喜你已经基本掌握了OpenCV中RoboCup很可能用到的部分！
