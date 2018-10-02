@@ -1,6 +1,10 @@
 cmake-build-debug
+*.d
+*.exe
 Debug
 .idea
 include
+*.o
 .vs
 .vscode
+.wbproj
