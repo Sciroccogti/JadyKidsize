@@ -8,5 +8,5 @@ selectionDisabled: 0
 viewpointLocked: 0
 orthographicViewHeight: 1
 textFiles: 0 "controllers/unirobot/UniRobot.cpp"
-renderingDevicePerspectives: ROBOTIS OP2:Display;1;2.00833;0.653076;0
 renderingDevicePerspectives: ROBOTIS OP2:Camera;1;1;0;0
+renderingDevicePerspectives: ROBOTIS OP2:Display;1;2.00833;0.653076;0

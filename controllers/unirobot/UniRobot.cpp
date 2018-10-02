@@ -72,7 +72,7 @@ void UniRobot::imageProcess()
 		// Binarization
         Mat dstMat = rgbMat.clone();
         uchar  *p = dstMat.ptr(); 
-        int i, j;
+        int i, j, k;
         int nRows = rgbMat.rows * 3;
         int nCols = rgbMat.cols;
         
@@ -117,7 +117,39 @@ void UniRobot::imageProcess()
 
 		//mDisplay->imagePaste(mDisplay->imageNew(w, h, dstMat.data, Display::RGB), 0, 0);
 		*/
+		/*
+		bool last;  // black is false, white is true
+		vector<int> left (nRows), right (nRows);
 
+		for (i = 0; i < nRows; i += 3) {
+			int b2w[3] = { -1, -1, -1 }, w2b[3] = { -1, -1, -1 };
+			int nb2w = 0, nw2b = 0;
+			last = p[i * nCols];
+
+			if (last) {
+				b2w[nb2w++] = 0;
+			}
+
+			for (j = 0; j < nCols; j++) {
+				if (last && !p[i * nCols + j] && nb2w) {  // there must be a b2w before the true right border
+					w2b[nw2b++] = j;
+				}
+				else if (!last && p[i * nCols + j]) {
+					b2w[nb2w++] = j;
+				}
+			}
+
+			for (j = 0; j < nb2w; j++) {
+				for (k = 0; k < nw2b; k++) {
+					if (w2b[k] - b2w[j] < nCols / 2 && w2b[k] - b2w[j] > nCols / 6) {
+						left[i] = b2w[j];
+						right[i] = w2b[k];
+						break;
+					}
+				}
+			}
+		}
+		*/
 		showImage(dstMat.data);
 		dstMat.release();
 		//dstMat.release();
