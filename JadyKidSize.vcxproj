@@ -110,10 +110,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="controllers\unirobot\main.cpp" />
-    <ClCompile Include="controllers\unirobot\UniRobot.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="controllers\unirobot\UniRobot.hpp" />
     <ClInclude Include="libraries\managers\include\RobotisOp2DirectoryManager.hpp" />
     <ClInclude Include="libraries\managers\include\RobotisOp2GaitManager.hpp" />
@@ -177,6 +173,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="libraries\robotis-op2\robotis\data\motion_4096.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="controllers\unirobot\main.cpp" />
+    <ClCompile Include="controllers\unirobot\UniRobot.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

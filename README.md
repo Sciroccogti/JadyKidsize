@@ -6,6 +6,8 @@ webots的基本使用及打开工程请阅读[如何使用.pdf](https://github.c
 
 控制程序的编写请阅读[程序说明.pdf](https://github.com/Sciroccogti/JadyKidsize/blob/master/Official%20Info/%E7%A8%8B%E5%BA%8F%E8%AF%B4%E6%98%8E.pdf)
 
+机器人官方手册[darwin-op](http://support.robotis.com/en/techsupport_eng.htm#product/darwin-op.htm)
+
 ##  总日程：
 - [ ]  10月13~15日：提交代码（初测）
 - [ ]  10月20日：决赛（终测）
@@ -34,3 +36,6 @@ webots的基本使用及打开工程请阅读[如何使用.pdf](https://github.c
 
 * 异常处理：
   * 摔倒：判定方法与解决方案
+
+##  参数探索
+头部：设为1则近乎水平，设为0则大约于铅锤方向呈30°

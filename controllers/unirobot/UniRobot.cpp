@@ -33,28 +33,85 @@ static double clamp(double value, double min, double max)
 
 static double minMotorPositions[NMOTORS];
 static double maxMotorPositions[NMOTORS];
+/*
+inline uchar* Mat2uchar(const Mat & src)
+{
+	int i = 0, j = 0;
+	int row = src.rows;
+	int col = src.cols;
 
+	uchar **dst = (uchar **)malloc(row * sizeof(uchar *));//二维数组dst[][]
+	for (i = 0; i < row; i++)
+		dst[i] = (uchar *)malloc(col * sizeof(uchar));
+
+	for (i = 0; i < row; i++)
+	{
+		for (j = 0; j < col; j++)
+		{
+			dst[i][j] = src.at<uchar>(i, j);//src的矩阵数据传给二维数组dst[][]
+		}
+	}
+	return *dst;
+}
+*/
 void UniRobot::imageProcess()
 {
-  unsigned char *rgb = getRGBImage();  //get raw data, format: RGB
-  Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
-  
-  showImage(rgb);
-  if(mode == MODE_BALL)
-  {
-    //TODO Write down your code
-    //update the resInfo
-    resInfo.ball_found = false;
-    resInfo.ball_x = 0.0;
-    resInfo.ball_y = 0.0;
-  }
-  else if(mode == MODE_LINE)
-  {
-    //TODO Write down your code
-    //update the resInfo
-  }
-  rgbMat.release();
-  delete []rgb;
+    unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
+    Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
+    //240*320
+
+    if (mode == MODE_BALL) {
+        //TODO Write down your code
+        //update the resInfo
+        resInfo.ball_found = false;
+        resInfo.ball_x = 0.0;
+        resInfo.ball_y = 0.0;
+    } else if (mode == MODE_LINE) {
+        //TODO Write down your code
+
+        // TODO: rectify the tilted pic
+        // assuming that the angle betwenn the middle of the vision and the plumb line is 60°
+        /*
+	Mat dstMat(rgbMat);
+	int nrows = rgbMat.rows;
+	int ncols = rgbMat.cols;
+	vector<Point2f> corners(4);
+	corners[0] = Point2f(0, 0);
+	corners[1] = Point2f(ncols, 0);
+	corners[2] = Point2f(0, nrows);
+	corners[3] = Point2f(ncols, nrows);
+	vector<Point2f> corners_dst(4);
+	// float delta =
+	corners_dst[0] = Point2f(0, 0);
+	corners_dst[1] = Point2f(ncols, 0);
+	corners_dst[2] = Point2f(0, nrows);
+	corners_dst[3] = Point2f(ncols, nrows);
+
+	Mat transform = getPerspectiveTransform(corners, corners_dst);
+	warpPerspective(rgbMat, dstMat, transform, dstMat.size(), INTER_LINEAR, BORDER_CONSTANT);
+	*/
+
+        Mat binMat = rgbMat.clone();
+        uchar  *q = binMat.ptr(); 
+        int i, j;
+        int nRows = rgbMat.rows * 3;
+        int nCols = rgbMat.cols;
+        
+		for (i = 0; i < nRows; i ++) {
+            for (j = 0; j < nCols; j += 3) {
+                if (q[i * nCols + j] < 200 && q[i * nCols + j + 1] < 200 && q[i * nCols + j + 2] < 200) {
+                    q[i * nCols + j] = q[i * nCols + j + 1] = q[i * nCols + j + 2] = 0;
+                } else {
+                    q[i * nCols + j] = q[i * nCols + j + 1] = q[i * nCols + j + 2] = 255;
+                }
+            }
+        }
+		showImage(binMat.data);
+
+        //update the resInfo
+    }
+    rgbMat.release();
+    delete[] rgb;
 }
 
 // function containing the main feedback loop

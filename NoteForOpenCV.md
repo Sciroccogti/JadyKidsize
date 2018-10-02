@@ -27,6 +27,7 @@
         - [反向投影](#反向投影)
         - [模板匹配](#模板匹配)
         - [在图像中检测轮廓](#在图像中检测轮廓)
+    - [使用时用到的额外内容](#使用时用到的额外内容)
 
 本笔记为为完成Robocup竞赛中KidSize组而做的OpenCV的学习
 ***
@@ -544,3 +545,7 @@ void Morphology_Operations( int, void* )
 ### [在图像中检测轮廓](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/shapedescriptors/find_contours/find_contours.html)
 
 接下来就是视频流和机器学习了，恭喜你已经基本掌握了OpenCV中RoboCup很可能用到的部分！
+
+##  使用时用到的额外内容
+[透视变换](https://zhuanlan.zhihu.com/p/24591720)
+[二值化](https://blog.csdn.net/qq_34784753/article/details/55804396)

@@ -1,3 +1,4 @@
+*.cache
 cmake-build-debug
 *.d
 *.exe
