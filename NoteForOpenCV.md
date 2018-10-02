@@ -520,6 +520,63 @@ void Morphology_Operations( int, void* )
 ### [给图像添加边界](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/copyMakeBorder/copyMakeBorder.html)
 
 ### [Canny边缘检测](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html)
+```C++
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <stdlib.h>
+#include <stdio.h>
+
+using namespace cv;
+
+/// 全局变量
+
+Mat src, src_gray;
+Mat dst, detected_edges;
+
+int edgeThresh = 1;
+int lowThreshold;
+int const max_lowThreshold = 100;
+int ratio = 3;
+int kernel_size = 3;
+char* window_name = "Edge Map";
+
+/**
+ * @函数 CannyThreshold
+ * @简介： trackbar 交互回调 - Canny阈值输入比例1:3
+ */
+void CannyThreshold(int, void*)
+{
+  blur( src_gray, detected_edges, Size(3,3) );  // 使用 3x3内核降噪
+
+  Canny( detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size );  // 运行Canny算子
+
+  dst = Scalar::all(0);  // 使用 Canny算子输出边缘作为掩码显示原图像
+
+  src.copyTo( dst, detected_edges);
+  imshow( window_name, dst );
+ }
+
+int main( int argc, char** argv )
+{
+  src = imread( argv[1] );
+
+  if( !src.data ) { return -1; }
+
+  dst.create( src.size(), src.type() );  // 创建与src同类型和大小的矩阵(dst)
+
+  cvtColor( src, src_gray, CV_BGR2GRAY );  // 原图像转换为灰度图像
+
+  namedWindow( window_name, CV_WINDOW_AUTOSIZE );  // 创建显示窗口
+
+  createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );  // 创建trackbar
+
+  CannyThreshold(0, 0);  // 显示图像
+
+  waitKey(0);  // 等待用户反应
+
+  return 0;
+  }
+  ```
 
 ### [霍夫线变换——用于检测直线](http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html)
 

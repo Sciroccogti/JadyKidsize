@@ -68,46 +68,59 @@ void UniRobot::imageProcess()
         resInfo.ball_y = 0.0;
     } else if (mode == MODE_LINE) {
         //TODO Write down your code
-
-        // TODO: rectify the tilted pic
-        // assuming that the angle betwenn the middle of the vision and the plumb line is 60°
-        /*
-	Mat dstMat(rgbMat);
-	int nrows = rgbMat.rows;
-	int ncols = rgbMat.cols;
-	vector<Point2f> corners(4);
-	corners[0] = Point2f(0, 0);
-	corners[1] = Point2f(ncols, 0);
-	corners[2] = Point2f(0, nrows);
-	corners[3] = Point2f(ncols, nrows);
-	vector<Point2f> corners_dst(4);
-	// float delta =
-	corners_dst[0] = Point2f(0, 0);
-	corners_dst[1] = Point2f(ncols, 0);
-	corners_dst[2] = Point2f(0, nrows);
-	corners_dst[3] = Point2f(ncols, nrows);
-
-	Mat transform = getPerspectiveTransform(corners, corners_dst);
-	warpPerspective(rgbMat, dstMat, transform, dstMat.size(), INTER_LINEAR, BORDER_CONSTANT);
-	*/
-
-        Mat binMat = rgbMat.clone();
-        uchar  *q = binMat.ptr(); 
+		
+		// Binarization
+        Mat dstMat = rgbMat.clone();
+        uchar  *p = dstMat.ptr(); 
         int i, j;
         int nRows = rgbMat.rows * 3;
         int nCols = rgbMat.cols;
         
 		for (i = 0; i < nRows; i ++) {
             for (j = 0; j < nCols; j += 3) {
-                if (q[i * nCols + j] < 200 && q[i * nCols + j + 1] < 200 && q[i * nCols + j + 2] < 200) {
-                    q[i * nCols + j] = q[i * nCols + j + 1] = q[i * nCols + j + 2] = 0;
+                if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
+                    p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
                 } else {
-                    q[i * nCols + j] = q[i * nCols + j + 1] = q[i * nCols + j + 2] = 255;
+                    p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
                 }
             }
         }
-		showImage(binMat.data);
+		
+		// rectify the tilted pic
+        // assuming that the angle betwenn the middle of the vision and the plumb line is 60°
+		//Mat dstMat = dstMat.clone();
+		int nrows = rgbMat.rows;
+		int ncols = rgbMat.cols;
+		float ratio = cos(60 - 23) / cos(60 + 23);
+		vector<Point2f> corners(4);
+		corners[0] = Point2f(0, 0);
+		corners[1] = Point2f(ncols-1, 0);
+		corners[2] = Point2f(ncols * (1 - ratio) / 2, nrows-1);
+		corners[3] = Point2f(ncols * (1 + ratio) / 2, nrows-1);
+		vector<Point2f> corners_dst(4);
+		corners_dst[0] = Point2f(0, 0);
+		corners_dst[1] = Point2f(ncols-1, 0);
+		corners_dst[2] = Point2f(0, nrows-1);
+		corners_dst[3] = Point2f(ncols-1, nrows - 1);
 
+		Mat transform = getPerspectiveTransform(corners, corners_dst);
+		warpPerspective(dstMat, dstMat, transform, dstMat.size(), INTER_LINEAR, BORDER_CONSTANT);
+		// CannyThreshold
+		/*
+		Mat dstMat(rgbMat.size(), rgbMat.type()), edge(rgbMat.size(), rgbMat.type());
+		blur(dstMat, edge, Size(3, 3));
+		Canny(edge, dstMat, 50, 90);
+		int w = mDisplay->getWidth();
+		int h = mDisplay->getHeight();
+		resize(dstMat, dstMat, Size(w, h));
+		ImageRef *img = mDisplay->imageNew(w, h, dstMat.data, Display::RGB);
+
+		//mDisplay->imagePaste(mDisplay->imageNew(w, h, dstMat.data, Display::RGB), 0, 0);
+		*/
+
+		showImage(dstMat.data);
+		dstMat.release();
+		//dstMat.release();
         //update the resInfo
     }
     rgbMat.release();
@@ -219,7 +232,7 @@ void UniRobot::run()
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.3, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
