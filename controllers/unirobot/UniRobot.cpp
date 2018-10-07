@@ -58,7 +58,7 @@ void UniRobot::imageProcess()
 {
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
     Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
-    //240*320
+    //240*320, CV_8UC3
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
@@ -70,8 +70,8 @@ void UniRobot::imageProcess()
         //TODO Write down your code
 		
 		// Binarization
-        Mat dstMat = rgbMat.clone();
-        uchar  *p = dstMat.ptr(); 
+        Mat binMat = rgbMat.clone();
+        uchar  *p = binMat.ptr(); 
         int i, j, k;
         int nRows = rgbMat.rows * 3;
         int nCols = rgbMat.cols;
@@ -85,7 +85,8 @@ void UniRobot::imageProcess()
                 }
             }
         }
-		
+
+		/*****************************************************************************************
 		// rectify the tilted pic
         // assuming that the angle betwenn the middle of the vision and the plumb line is 60°
 		//Mat dstMat = dstMat.clone();
@@ -105,18 +106,16 @@ void UniRobot::imageProcess()
 
 		Mat transform = getPerspectiveTransform(corners, corners_dst);
 		warpPerspective(dstMat, dstMat, transform, dstMat.size(), INTER_LINEAR, BORDER_CONSTANT);
-		// CannyThreshold
-		/*
-		Mat dstMat(rgbMat.size(), rgbMat.type()), edge(rgbMat.size(), rgbMat.type());
-		blur(dstMat, edge, Size(3, 3));
-		Canny(edge, dstMat, 50, 90);
-		int w = mDisplay->getWidth();
-		int h = mDisplay->getHeight();
-		resize(dstMat, dstMat, Size(w, h));
-		ImageRef *img = mDisplay->imageNew(w, h, dstMat.data, Display::RGB);
+		*******************************************************************************************************/
 
-		//mDisplay->imagePaste(mDisplay->imageNew(w, h, dstMat.data, Display::RGB), 0, 0);
-		*/
+		// CannyThreshold
+		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
+		cvtColor(binMat, binGray, CV_RGB2GRAY);  // try BGR
+		blur(binGray, edge, Size(3, 3));
+		Canny(edge, edge, 30, 90, 3);
+		dstMat = Scalar::all(0);
+		binMat.copyTo(dstMat, edge);
+
 		/*
 		bool last;  // black is false, white is true
 		vector<int> left (nRows), right (nRows);
