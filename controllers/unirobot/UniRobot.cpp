@@ -73,8 +73,8 @@ void UniRobot::imageProcess()
         Mat binMat = rgbMat.clone();
         uchar  *p = binMat.ptr(); 
         int i, j, k;
-        int nRows = rgbMat.rows * 3;
-        int nCols = rgbMat.cols;
+        int nRows = rgbMat.rows;
+        int nCols = rgbMat.cols * 3;
         
 		for (i = 0; i < nRows; i ++) {
             for (j = 0; j < nCols; j += 3) {
@@ -87,6 +87,7 @@ void UniRobot::imageProcess()
         }
 
 		/*****************************************************************************************
+
 		// rectify the tilted pic
         // assuming that the angle betwenn the middle of the vision and the plumb line is 60°
 		//Mat dstMat = dstMat.clone();
@@ -105,8 +106,9 @@ void UniRobot::imageProcess()
 		corners_dst[3] = Point2f(ncols-1, nrows - 1);
 
 		Mat transform = getPerspectiveTransform(corners, corners_dst);
-		warpPerspective(dstMat, dstMat, transform, dstMat.size(), INTER_LINEAR, BORDER_CONSTANT);
-		*******************************************************************************************************/
+		warpPerspective(binMat, binMat, transform, binMat.size(), INTER_LINEAR, BORDER_CONSTANT);
+
+		/*******************************************************************************************************/
 
 		// CannyThreshold
 		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
@@ -116,14 +118,16 @@ void UniRobot::imageProcess()
 		dstMat = Scalar::all(0);
 		binMat.copyTo(dstMat, edge);
 
-		/*
-		bool last;  // black is false, white is true
+		/*******************************************************************************************************
+
+		bool StartIsW, EndIsW;  // black is false, white is true
 		vector<int> left (nRows), right (nRows);
 
 		for (i = 0; i < nRows; i += 3) {
 			int b2w[3] = { -1, -1, -1 }, w2b[3] = { -1, -1, -1 };
 			int nb2w = 0, nw2b = 0;
-			last = p[i * nCols];
+			StartIsW = p[i * nCols];
+			EndIsW = p[i * nCols]
 
 			if (last) {
 				b2w[nb2w++] = 0;
@@ -138,7 +142,7 @@ void UniRobot::imageProcess()
 				}
 			}
 
-			for (j = 0; j < nb2w; j++) {
+			for (j = 0; j < nb2w; j++) {/*
 				for (k = 0; k < nw2b; k++) {
 					if (w2b[k] - b2w[j] < nCols / 2 && w2b[k] - b2w[j] > nCols / 6) {
 						left[i] = b2w[j];
@@ -148,7 +152,9 @@ void UniRobot::imageProcess()
 				}
 			}
 		}
-		*/
+		
+		/*******************************************************************************************************/
+
 		showImage(dstMat.data);
 		dstMat.release();
 		//dstMat.release();
