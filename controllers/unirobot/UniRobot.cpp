@@ -127,13 +127,13 @@ void UniRobot::imageProcess()
 		if (!p[2 * nRows / 3 * nCols + nCols / 6] && !p[2 * nRows / 3 * nCols + 5 * nCols / 6]) {  // main detectors both touch black
 			if (!p[nRows / 3 * nCols + nCols / 3]) {  // assistant left detector
 				resInfo.direction = -0.3;
-				indicator.x = nCols / 3;
+				indicator.x = nCols / 9;
 				indicator.y = nRows / 3;
 				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
 			}
 			else if (!p[nRows / 3 * nCols + 2 * nCols / 3]) {  // assistant right detector
 				resInfo.direction = 0.3;
-				indicator.x = 2 * nCols / 3;
+				indicator.x = 2 * nCols / 9;
 				indicator.y = nRows / 3;
 				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
 			}
