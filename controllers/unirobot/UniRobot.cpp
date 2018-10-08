@@ -108,7 +108,7 @@ void UniRobot::imageProcess()
 		Mat transform = getPerspectiveTransform(corners, corners_dst);
 		warpPerspective(binMat, binMat, transform, binMat.size(), INTER_LINEAR, BORDER_CONSTANT);
 
-		/*******************************************************************************************************/
+		/*******************************************************************************************************
 
 		// CannyThreshold
 		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
@@ -118,45 +118,37 @@ void UniRobot::imageProcess()
 		dstMat = Scalar::all(0);
 		binMat.copyTo(dstMat, edge);
 
-		/*******************************************************************************************************
+		/*******************************************************************************************************/
 
-		bool StartIsW, EndIsW;  // black is false, white is true
-		vector<int> left (nRows), right (nRows);
+		// RoadDetection
+		p = binMat.ptr();
 
-		for (i = 0; i < nRows; i += 3) {
-			int b2w[3] = { -1, -1, -1 }, w2b[3] = { -1, -1, -1 };
-			int nb2w = 0, nw2b = 0;
-			StartIsW = p[i * nCols];
-			EndIsW = p[i * nCols]
+		cv::Point pointInterest;//特征点，用以画在图像中
 
-			if (last) {
-				b2w[nb2w++] = 0;
-			}
 
-			for (j = 0; j < nCols; j++) {
-				if (last && !p[i * nCols + j] && nb2w) {  // there must be a b2w before the true right border
-					w2b[nw2b++] = j;
-				}
-				else if (!last && p[i * nCols + j]) {
-					b2w[nb2w++] = j;
-				}
-			}
 
-			for (j = 0; j < nb2w; j++) {/*
-				for (k = 0; k < nw2b; k++) {
-					if (w2b[k] - b2w[j] < nCols / 2 && w2b[k] - b2w[j] > nCols / 6) {
-						left[i] = b2w[j];
-						right[i] = w2b[k];
-						break;
-					}
-				}
-			}
+		
+
+		if (!p[2 * nRows / 3 * nCols + nCols / 6]) {  // left detector touch the balck
+			resInfo.direction = -0.5;
+			pointInterest.x = nCols / 18;//特征点在图像中横坐标
+			pointInterest.y = 2 * nRows / 3;//特征点在图像中纵坐标
+			cv::circle(binMat, pointInterest, 5, cv::Scalar(255, 0, 0));//在图像中画出特征点，2是圆的半径
+		}
+		else if (!p[2 * nRows / 3 * nCols + nCols / 6 * 5]) {
+			resInfo.direction = 0.5;
+			pointInterest.x = nCols / 18 * 5;//特征点在图像中横坐标
+			pointInterest.y = 2 * nRows / 3;//特征点在图像中纵坐标
+			cv::circle(binMat, pointInterest, 5, cv::Scalar(255, 0, 0));//在图像中画出特征点，2是圆的半径
+		}
+		else {
+			resInfo.direction = 0;
 		}
 		
 		/*******************************************************************************************************/
 
-		showImage(dstMat.data);
-		dstMat.release();
+		showImage(binMat.data);
+		binMat.release();
 		//dstMat.release();
         //update the resInfo
     }
@@ -265,7 +257,7 @@ void UniRobot::run()
         //walk control
         mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
         mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
+        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
