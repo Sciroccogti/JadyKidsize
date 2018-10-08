@@ -54,6 +54,7 @@ class UniRobot : public webots::Robot {
     {
       bool ball_found;
       double ball_x, ball_y;
+	  double direction;
     };
     ResultsInfo resInfo;
     

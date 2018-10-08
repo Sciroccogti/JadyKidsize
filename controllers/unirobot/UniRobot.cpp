@@ -54,6 +54,44 @@ inline uchar* Mat2uchar(const Mat & src)
 	return *dst;
 }
 */
+
+
+bool polynomial_curve_fit(std::vector<cv::Point>& key_point, int n, cv::Mat& A)
+{
+	//Number of key points
+	int N = key_point.size();
+	//构造矩阵X
+	cv::Mat X = cv::Mat::zeros(n + 1, n + 1, CV_64FC1);
+	for (int i = 0; i < n + 1; i++)
+	{
+		for (int j = 0; j < n + 1; j++)
+		{
+			for (int k = 0; k < N; k++)
+			{
+				X.at<double>(i, j) = X.at<double>(i, j) +
+					std::pow(key_point[k].x, i + j);
+			}
+		}
+	}
+
+	//构造矩阵Y
+	cv::Mat Y = cv::Mat::zeros(n + 1, 1, CV_64FC1);
+	for (int i = 0; i < n + 1; i++)
+	{
+		for (int k = 0; k < N; k++)
+		{
+			Y.at<double>(i, 0) = Y.at<double>(i, 0) +
+				std::pow(key_point[k].x, i) * key_point[k].y;
+		}
+	}
+
+	A = cv::Mat::zeros(n + 1, 1, CV_64FC1);
+	//求解矩阵A
+	cv::solve(X, Y, A, cv::DECOMP_LU);
+	return true;
+}
+
+
 void UniRobot::imageProcess()
 {
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
@@ -108,7 +146,7 @@ void UniRobot::imageProcess()
 		Mat transform = getPerspectiveTransform(corners, corners_dst);
 		warpPerspective(binMat, binMat, transform, binMat.size(), INTER_LINEAR, BORDER_CONSTANT);
 
-		/*******************************************************************************************************/
+		/*******************************************************************************************************
 
 		// CannyThreshold
 		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
@@ -118,46 +156,61 @@ void UniRobot::imageProcess()
 		dstMat = Scalar::all(0);
 		binMat.copyTo(dstMat, edge);
 
-		/*******************************************************************************************************
+		*******************************************************************************************************/
 
-		bool StartIsW, EndIsW;  // black is false, white is true
-		vector<int> left (nRows), right (nRows);
+		bool leftfound, rightfound;  // black is false, white is true
+		cv::Point lastwhite;
+		vector<cv::Point> left, right, mid;
 
-		for (i = 0; i < nRows; i += 3) {
-			int b2w[3] = { -1, -1, -1 }, w2b[3] = { -1, -1, -1 };
-			int nb2w = 0, nw2b = 0;
-			StartIsW = p[i * nCols];
-			EndIsW = p[i * nCols]
+		for (i = 0; i < nRows; i ++) {
+			leftfound = rightfound = false;
+			lastwhite = cv::Point(-1, -1);  // TODO: ??
 
-			if (last) {
-				b2w[nb2w++] = 0;
-			}
-
-			for (j = 0; j < nCols; j++) {
-				if (last && !p[i * nCols + j] && nb2w) {  // there must be a b2w before the true right border
-					w2b[nw2b++] = j;
-				}
-				else if (!last && p[i * nCols + j]) {
-					b2w[nb2w++] = j;
-				}
-			}
-
-			for (j = 0; j < nb2w; j++) {/*
-				for (k = 0; k < nw2b; k++) {
-					if (w2b[k] - b2w[j] < nCols / 2 && w2b[k] - b2w[j] > nCols / 6) {
-						left[i] = b2w[j];
-						right[i] = w2b[k];
-						break;
+            for (j = 0; j < nCols; j += 3) {
+				if (!leftfound) {
+					if (binMat.at<uchar>(i, j)) {  // touch white
+						left.push_back(cv::Point(i,j));
+						leftfound = true;
 					}
 				}
+				
+				if (!rightfound) {
+					if (binMat.at<uchar>(i, j)) {  // touch white
+						lastwhite = cv::Point(i, j);  // store the lastwhite
+					}
+
+					if (nCols - j < 3) {  // reach the end of the row
+						if (binMat.at<uchar>(i, j)) {  // end with white
+							right.push_back(cv::Point(i, j));
+							rightfound = true;
+						}
+						else if (lastwhite.x >= 0) {
+							right.push_back(lastwhite);
+							rightfound = true;
+						}
+					}
+				}
+            }
+
+			if (!leftfound || !rightfound) {  // no white this row
+				right.push_back(cv::Point(-1, -1));  // TODO: change the method of error handling
+				left.push_back(cv::Point(-1, -1));
 			}
+        }
+		/*
+		for (i = 0; i < right.size() && i < left.size(); i++) {
+			mid[i] = (right[i] + left[i]) / 2;
 		}
-		
+		*/
+		for (i = 0; i < right.size(); i++)
+		{
+			cv::circle(binMat, right[i], 5, cv::Scalar(0, 255, 0), 2, 8, 0);
+		}
+
 		/*******************************************************************************************************/
 
-		showImage(dstMat.data);
-		dstMat.release();
-		//dstMat.release();
+		showImage(binMat.data);
+		binMat.release();
         //update the resInfo
     }
     rgbMat.release();
