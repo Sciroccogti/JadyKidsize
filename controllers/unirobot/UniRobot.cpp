@@ -122,24 +122,33 @@ void UniRobot::imageProcess()
 
 		// RoadDetection
 		p = binMat.ptr();
+		cv::Point indicator;
 
-		cv::Point pointInterest;//特征点，用以画在图像中
-
-
-
-		
-
-		if (!p[2 * nRows / 3 * nCols + nCols / 6]) {  // left detector touch the balck
-			resInfo.direction = -0.5;
-			pointInterest.x = nCols / 18;//特征点在图像中横坐标
-			pointInterest.y = 2 * nRows / 3;//特征点在图像中纵坐标
-			cv::circle(binMat, pointInterest, 5, cv::Scalar(255, 0, 0));//在图像中画出特征点，2是圆的半径
+		if (!p[2 * nRows / 3 * nCols + nCols / 6] && !p[2 * nRows / 3 * nCols + 5 * nCols / 6]) {  // main detectors both touch black
+			if (!p[nRows / 3 * nCols + nCols / 3]) {  // assistant left detector
+				resInfo.direction = -0.3;
+				indicator.x = nCols / 3;
+				indicator.y = nRows / 3;
+				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+			}
+			else if (!p[nRows / 3 * nCols + 2 * nCols / 3]) {  // assistant right detector
+				resInfo.direction = 0.3;
+				indicator.x = 2 * nCols / 3;
+				indicator.y = nRows / 3;
+				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+			}
 		}
-		else if (!p[2 * nRows / 3 * nCols + nCols / 6 * 5]) {
+		else if (!p[2 * nRows / 3 * nCols + nCols / 6]) {  // left detector touch balck
+			resInfo.direction = -0.5;
+			indicator.x = nCols / 18;
+			indicator.y = 2 * nRows / 3;
+			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
+		}
+		else if (!p[2 * nRows / 3 * nCols + 5 * nCols / 6]) {  // right detector touch the balck
 			resInfo.direction = 0.5;
-			pointInterest.x = nCols / 18 * 5;//特征点在图像中横坐标
-			pointInterest.y = 2 * nRows / 3;//特征点在图像中纵坐标
-			cv::circle(binMat, pointInterest, 5, cv::Scalar(255, 0, 0));//在图像中画出特征点，2是圆的半径
+			indicator.x = 5 * nCols / 18;
+			indicator.y = 2 * nRows / 3;
+			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
 		}
 		else {
 			resInfo.direction = 0;
