@@ -121,31 +121,31 @@ void UniRobot::imageProcess()
 		/*******************************************************************************************************/
 
 		// RoadDetection
-		p = binMat.ptr();
 		cv::Point indicator;
 
-		if (!p[2 * nRows / 3 * nCols + nCols / 6] && !p[2 * nRows / 3 * nCols + 5 * nCols / 6]) {  // main detectors both touch black
-			if (!p[nRows / 3 * nCols + nCols / 3]) {  // assistant left detector
+		if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6) && !binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // main detectors both touch black
+			//if (!binMat.at<uchar>(nRows / 3, nCols / 3) && !binMat.at<uchar>(nRows / 3, 2 * nCols / 3)) 
+			if (!binMat.at<uchar>(nRows / 3, nCols / 3)) {  // assistant left detector
 				resInfo.direction = -0.3;
 				indicator.x = nCols / 9;
 				indicator.y = nRows / 3;
 				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
 			}
-			else if (!p[nRows / 3 * nCols + 2 * nCols / 3]) {  // assistant right detector
+			else if (!binMat.at<uchar>(nRows / 3, 2 * nCols / 3)) {  // assistant right detector
 				resInfo.direction = 0.3;
 				indicator.x = 2 * nCols / 9;
 				indicator.y = nRows / 3;
 				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
 			}
 		}
-		else if (!p[2 * nRows / 3 * nCols + nCols / 6]) {  // left detector touch balck
-			resInfo.direction = -0.5;
+		else if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6)) {  // left detector touch balck
+			resInfo.direction = -0.9;
 			indicator.x = nCols / 18;
 			indicator.y = 2 * nRows / 3;
 			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
 		}
-		else if (!p[2 * nRows / 3 * nCols + 5 * nCols / 6]) {  // right detector touch the balck
-			resInfo.direction = 0.5;
+		else if (!binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // right detector touch the balck
+			resInfo.direction = 0.9;
 			indicator.x = 5 * nCols / 18;
 			indicator.y = 2 * nRows / 3;
 			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
@@ -270,7 +270,7 @@ void UniRobot::run()
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.45, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
