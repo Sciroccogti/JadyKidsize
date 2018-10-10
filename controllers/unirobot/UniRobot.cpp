@@ -97,6 +97,7 @@ void UniRobot::imageProcess()
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
     Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
     //240*320, CV_8UC3
+	//array: i, j; CVpoint: j/3, i
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
@@ -168,7 +169,7 @@ void UniRobot::imageProcess()
 
             for (j = 0; j < nCols; j += 3) {
 				if (!leftfound) {
-					if (binMat.at<uchar>(j / 3, i)) {  // touch white
+					if (binMat.at<uchar>(i, j)) {  // touch white
 						left.push_back(cv::Point(j / 3, i));
 						leftfound = true;
 					}
@@ -176,12 +177,12 @@ void UniRobot::imageProcess()
 				
 				if (!rightfound) {
 					if (binMat.at<uchar>(i, j)) {  // touch white
-						lastwhite = cv::Point(i, j);  // store the lastwhite
+						lastwhite = cv::Point(j / 3, i);  // store the lastwhite
 					}
 
-					if (nCols - j < 3) {  // reach the end of the row
+					if (nCols - j <= 3) {  // reach the end of the row
 						if (binMat.at<uchar>(i, j)) {  // end with white
-							right.push_back(cv::Point(i, j));
+							right.push_back(cv::Point(j / 3, i));
 							rightfound = true;
 						}
 						else if (lastwhite.x >= 0) {
@@ -192,19 +193,29 @@ void UniRobot::imageProcess()
 				}
             }
 
-			if (!leftfound && !rightfound) {  // no white this row
-				right.push_back(cv::Point(-1, -1));  // TODO: change the method of error handling
-				left.push_back(cv::Point(-1, -1));
+			if (!rightfound) {  // no white this row
+				right.push_back(cv::Point(nCols / 3, i));  // TODO: change the method of error handling
+			}
+			if (!leftfound) {  // no white this row
+				left.push_back(cv::Point(0, i));  // TODO: change the method of error handling
 			}
         }
-		/*
+		
 		for (i = 0; i < right.size() && i < left.size(); i++) {
-			mid[i] = (right[i] + left[i]) / 2;
+			mid.push_back(cv::Point((right[i].x + left[i].x) / 2, (right[i].y + left[i].y) / 2));
 		}
-		*/
+		
 		for (i = 0; i < left.size(); i++)
 		{
 			cv::circle(binMat, left[i], 1, cv::Scalar(0, 255, 0));
+		}
+		for (i = 0; i < right.size(); i++)
+		{
+			cv::circle(binMat, right[i], 1, cv::Scalar(0, 255, 0));
+		}
+		for (i = 0; i < mid.size(); i++)
+		{
+			cv::circle(binMat, mid[i], 1, cv::Scalar(0, 255, 0));
 		}
 		//cout << right.size() << endl;
 		/*******************************************************************************************************/
