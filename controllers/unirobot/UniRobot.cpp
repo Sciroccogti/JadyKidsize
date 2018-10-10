@@ -168,8 +168,8 @@ void UniRobot::imageProcess()
 
             for (j = 0; j < nCols; j += 3) {
 				if (!leftfound) {
-					if (binMat.at<uchar>(i, j)) {  // touch white
-						left.push_back(cv::Point(i,j));
+					if (binMat.at<uchar>(j / 3, i)) {  // touch white
+						left.push_back(cv::Point(j / 3, i));
 						leftfound = true;
 					}
 				}
@@ -192,7 +192,7 @@ void UniRobot::imageProcess()
 				}
             }
 
-			if (!leftfound || !rightfound) {  // no white this row
+			if (!leftfound && !rightfound) {  // no white this row
 				right.push_back(cv::Point(-1, -1));  // TODO: change the method of error handling
 				left.push_back(cv::Point(-1, -1));
 			}
@@ -202,11 +202,11 @@ void UniRobot::imageProcess()
 			mid[i] = (right[i] + left[i]) / 2;
 		}
 		*/
-		for (i = 0; i < right.size(); i++)
+		for (i = 0; i < left.size(); i++)
 		{
-			cv::circle(binMat, right[i], 5, cv::Scalar(0, 255, 0), 2, 8, 0);
+			cv::circle(binMat, left[i], 1, cv::Scalar(0, 255, 0));
 		}
-
+		//cout << right.size() << endl;
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
