@@ -56,7 +56,7 @@ inline uchar* Mat2uchar(const Mat & src)
 */
 
 
-bool polynomial_curve_fit(std::vector<cv::Point>& key_point, int n, cv::Mat& A)
+bool polynomial_curve_fit(std::vector<cv::Point>& key_point, int n, cv::Mat& A)//https://blog.csdn.net/guduruyu/article/details/72866144
 {
 	//Number of key points
 	int N = key_point.size();
@@ -217,7 +217,7 @@ void UniRobot::imageProcess()
 		{
 			cv::circle(binMat, mid[i], 1, cv::Scalar(0, 255, 0));
 		}
-		//cout << right.size() << endl;
+
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
