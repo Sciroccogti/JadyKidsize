@@ -62,6 +62,44 @@ void UniRobot::imageProcess()
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
+		Mat greyMat;
+		/*int i, j, k;
+		int nRows = rgbMat.rows;
+		int nCols = rgbMat.cols * 3;
+		uchar  *p = greyMat.ptr();
+		uchar  *q = rgbMat.ptr();
+		
+		for (i = 0; i < nRows; i++) {
+			for (j = 0; j < nCols; j += 3) {
+				// TODO: modify diametres
+				//p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = q[i * nCols + j]*0.299+q[i * nCols + j + 1]*0.587+ q[i * nCols + j + 1]*0.114;
+				//cout << q[i * nCols + j] * 0.299<<"ttt";//p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2]=100;
+
+			}
+		}*/
+		//转成灰度图
+		
+		cvtColor(rgbMat, greyMat, CV_RGB2GRAY);
+		GaussianBlur(greyMat, greyMat, Size(9, 9), 2);//调参
+		/*vector<Vec3f> circles;
+		HoughCircles(greyMat, circles, CV_HOUGH_GRADIENT, 1, greyMat.rows / 8, 200, 100, 0, 0);//调参
+		for (size_t i = 0; i < circles.size(); i++)
+		{
+			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+			int radius = cvRound(circles[i][2]);
+			// circle center
+			circle(greyMat, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+			// circle outline
+			circle(greyMat, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+		}
+		Mat Matgrey(rgbMat.size(), rgbMat.type());
+		cvtColor(greyMat, Matgrey, CV_GRAY2RGB);
+		*/
+		//namedWindow("Hough Circle Transform Demo", CV_WINDOW_AUTOSIZE);
+		//imshow("Hough Circle Transform Demo", greyMat);
+		//showImage(greyMat.data);
+		greyMat.release();
+		//Matgrey.release();
         //update the resInfo
         resInfo.ball_found = false;
         resInfo.ball_x = 0.0;
@@ -270,7 +308,7 @@ void UniRobot::run()
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.45, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.40, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
