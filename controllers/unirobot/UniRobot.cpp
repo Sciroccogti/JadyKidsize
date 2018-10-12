@@ -203,7 +203,7 @@ void UniRobot::imageProcess()
         }
 		
 		for (i = 0; i < right.size() && i < left.size(); i++) {
-			mid.push_back(cv::Point((right[i].y + left[i].y) / 2, (right[i].x + left[i].x) / 2));
+			mid.push_back(cv::Point((right[i].x + left[i].x) / 2, (right[i].y + left[i].y) / 2));
 		}
 		
 		for (i = 0; i < left.size(); i++)
@@ -213,16 +213,16 @@ void UniRobot::imageProcess()
 		for (i = 0; i < right.size(); i++)
 		{
 			cv::circle(binMat, right[i], 1, cv::Scalar(0, 255, 0));
-		}/*
+		}
 		for (i = 0; i < mid.size(); i++)
 		{
 			cv::circle(binMat, mid[i], 1, cv::Scalar(0, 255, 0));
 		}
-		*/
+		
 		/*********************************************************************************************************/
 		
-		
-
+		resInfo.direction = (nCols / 6 - mid[19 * nRows / 20].x) / 200.0;
+		cout << resInfo.direction << endl;
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
@@ -334,7 +334,7 @@ void UniRobot::run()
         //walk control
         mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
         mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
+        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
