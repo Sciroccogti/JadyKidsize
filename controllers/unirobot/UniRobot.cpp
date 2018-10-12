@@ -63,14 +63,7 @@ void UniRobot::imageProcess()
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
-		Mat binMat = rgbMat.clone();
-
-		//getballcenter;
-		double ballx, bally;
 		
-	
-		showImage(binMat.data);
-		binMat.release();
 		/*Mat greyMat;
 		int i, j, k;
 		int nRows = rgbMat.rows;
@@ -107,26 +100,36 @@ void UniRobot::imageProcess()
 		/*************************/
 
 		/****************************/
-		/*//转成灰度图
-		//cvtColor(rgbMat, greyMat, CV_RGB2GRAY);
-		GaussianBlur(binMat, binMat, Size(9, 9), 2);//调参
-		vector<Vec3f> circles;
-		HoughCircles(binMat, circles, CV_HOUGH_GRADIENT, 1, binMat.rows / 8, 200, 100, 0, 0);//调参
-		for (size_t i = 0; i < circles.size(); i++)
-		{
-			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-			int radius = cvRound(circles[i][2]);
-			// circle center
-			circle(binMat, center, 3, Scalar(0, 255, 0), -1, 8, 0);
-			// circle outline
-			circle(binMat, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+		//霍夫圆变换
+		Mat src_gray, src_rgb;
+		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);/*
+		uchar  *p = src_gray.ptr();
+		uchar  *q = rgbMat.ptr();
+		int i, j, k;
+		int nRows = rgbMat.rows;
+		int nCols = rgbMat.cols * 3;
+		/*
+		for (i = 0; i < nRows; i++) {
+			for (j = 0; j < nCols; j += 3) {
+				p[i * nCols + j / 3] = 0.299*q[i * nCols + j] + 0.587*q[i * nCols + j + 1] + 0.114*q[i * nCols + j + 2];
+				/*if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
+				}
+				else {
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
+				}
+			}
 		}
-		//Mat Matgrey(rgbMat.size(), rgbMat.type());
-		//cvtColor(greyMat, Matgrey, CV_GRAY2RGB);
-		
-		namedWindow("Hough Circle Transform Demo", CV_WINDOW_AUTOSIZE);
-		imshow("Hough Circle Transform Demo", binMat);
-		binMat.release;*/
+		*/
+		//GaussianBlur(src_gray, src_gray, Size(9, 9), 2, 2);
+
+		//vector<Vec3f> circles;
+		//HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, 1, src_gray.rows / 8, 200, 100, 0, 0);
+		cvtColor(src_gray, src_rgb, CV_GRAY2RGB);
+		showImage(src_rgb.data);
+		//waitKey(0);
+		src_rgb.release();
+		src_gray.release();
 		/****************************/
 
 		//showImage(greyMat.data);
