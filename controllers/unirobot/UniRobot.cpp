@@ -221,23 +221,8 @@ void UniRobot::imageProcess()
 		*/
 		/*********************************************************************************************************/
 		
-		// polyfit 
-		// TODO: review codes below
-		cv::polylines(binMat, mid, false, cv::Scalar(0, 255, 0), 1, 8, 0);
-		cv::Mat A;
-		polynomial_curve_fit(mid, 3, A);
-		std::vector<cv::Point> points_fitted;
-		for (int x = 0; x < 400; x++) {
-			double y = A.at<double>(0, 0) + A.at<double>(1, 0) * x + A.at<double>(2, 0)*std::pow(x, 2) + A.at<double>(3, 0)*std::pow(x, 3);
-			points_fitted.push_back(cv::Point(x, y));
-		}
 		
-		for (i = 0; i < points_fitted.size(); i++) {
-			swap(points_fitted[i].x, points_fitted[i].y);
-		}
 
-		cv::polylines(binMat, points_fitted, false, cv::Scalar(0, 255, 255), 1, 8, 0);
-		
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
