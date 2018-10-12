@@ -10,6 +10,7 @@
 #include <RobotisOp2GaitManager.hpp>
 #include <RobotisOp2VisionManager.hpp>
 
+
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
@@ -62,8 +63,16 @@ void UniRobot::imageProcess()
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
-		Mat greyMat;
-		/*int i, j, k;
+		Mat binMat = rgbMat.clone();
+
+		//getballcenter;
+		double ballx, bally;
+		
+	
+		showImage(binMat.data);
+		binMat.release();
+		/*Mat greyMat;
+		int i, j, k;
 		int nRows = rgbMat.rows;
 		int nCols = rgbMat.cols * 3;
 		uchar  *p = greyMat.ptr();
@@ -77,28 +86,51 @@ void UniRobot::imageProcess()
 
 			}
 		}*/
-		//转成灰度图
-		
-		cvtColor(rgbMat, greyMat, CV_RGB2GRAY);
-		GaussianBlur(greyMat, greyMat, Size(9, 9), 2);//调参
-		/*vector<Vec3f> circles;
-		HoughCircles(greyMat, circles, CV_HOUGH_GRADIENT, 1, greyMat.rows / 8, 200, 100, 0, 0);//调参
+
+		/*************************/
+		/*Mat binMat = rgbMat.clone();
+		uchar  *p = binMat.ptr();
+		int i, j, k;
+		int nRows = rgbMat.rows;
+		int nCols = rgbMat.cols * 3;
+
+		for (i = 0; i < nRows; i++) {
+			for (j = 0; j < nCols; j += 3) {
+				if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
+				}
+				else {
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
+				}
+			}
+		}*/
+		/*************************/
+
+		/****************************/
+		/*//转成灰度图
+		//cvtColor(rgbMat, greyMat, CV_RGB2GRAY);
+		GaussianBlur(binMat, binMat, Size(9, 9), 2);//调参
+		vector<Vec3f> circles;
+		HoughCircles(binMat, circles, CV_HOUGH_GRADIENT, 1, binMat.rows / 8, 200, 100, 0, 0);//调参
 		for (size_t i = 0; i < circles.size(); i++)
 		{
 			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 			int radius = cvRound(circles[i][2]);
 			// circle center
-			circle(greyMat, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+			circle(binMat, center, 3, Scalar(0, 255, 0), -1, 8, 0);
 			// circle outline
-			circle(greyMat, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+			circle(binMat, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 		}
-		Mat Matgrey(rgbMat.size(), rgbMat.type());
-		cvtColor(greyMat, Matgrey, CV_GRAY2RGB);
-		*/
-		//namedWindow("Hough Circle Transform Demo", CV_WINDOW_AUTOSIZE);
-		//imshow("Hough Circle Transform Demo", greyMat);
+		//Mat Matgrey(rgbMat.size(), rgbMat.type());
+		//cvtColor(greyMat, Matgrey, CV_GRAY2RGB);
+		
+		namedWindow("Hough Circle Transform Demo", CV_WINDOW_AUTOSIZE);
+		imshow("Hough Circle Transform Demo", binMat);
+		binMat.release;*/
+		/****************************/
+
 		//showImage(greyMat.data);
-		greyMat.release();
+		//greyMat.release();
 		//Matgrey.release();
         //update the resInfo
         resInfo.ball_found = false;
