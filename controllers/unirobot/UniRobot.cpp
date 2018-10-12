@@ -97,7 +97,7 @@ void UniRobot::imageProcess()
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
     Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
     //240*320, CV_8UC3
-	//array: i, j; CVpoint: j/3, i
+	//array: i, j;    CVpoint: j/3, i;    x: nCols, y: nRows;
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
@@ -147,7 +147,7 @@ void UniRobot::imageProcess()
 		Mat transform = getPerspectiveTransform(corners, corners_dst);
 		warpPerspective(binMat, binMat, transform, binMat.size(), INTER_LINEAR, BORDER_CONSTANT);
 
-		/*******************************************************************************************************
+		*******************************************************************************************************
 
 		// CannyThreshold
 		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
@@ -161,7 +161,7 @@ void UniRobot::imageProcess()
 
 		// get the mid line
 		bool leftfound, rightfound;  // black is false, white is true
-		cv::Point lastwhite;
+		cv::Point lastwhite, lastleft = cv::Point(-1, -1);
 		vector<cv::Point> left, right, mid;
 
 		for (i = 0; i < nRows; i ++) {
@@ -169,61 +169,52 @@ void UniRobot::imageProcess()
 			lastwhite = cv::Point(-1, -1);  // TODO: ??
 
             for (j = 0; j < nCols; j += 3) {
-				if (!leftfound) {
-					if (binMat.at<uchar>(i, j)) {  // touch white
+				
+				if (binMat.at<uchar>(i, j) && (j == 0 || !binMat.at<uchar>(i, j - 1)) && j < nCols / 2) {  // touch b2w before mid
+					lastleft = cv::Point(j / 3, i);
+				}
+				else if (j > nCols / 2) {
+					if (lastleft.x >= 0 && !leftfound) {
+						left.push_back(lastleft);
+						leftfound = true;
+					}
+					else if (!leftfound) {
 						left.push_back(cv::Point(j / 3, i));
 						leftfound = true;
 					}
 				}
-				
-				if (!rightfound) {
-					if (binMat.at<uchar>(i, j)) {  // touch white
-						lastwhite = cv::Point(j / 3, i);  // store the lastwhite
-					}
 
-					if (nCols - j <= 3) {  // reach the end of the row
-						if (binMat.at<uchar>(i, j)) {  // end with white
-							right.push_back(cv::Point(j / 3, i));
-							rightfound = true;
-						}
-						else if (lastwhite.x >= 0) {
-							right.push_back(lastwhite);
-							rightfound = true;
-						}
+				if (leftfound && !rightfound) {
+					if (!binMat.at<uchar>(i, j) || (nCols - j <= 3 && binMat.at<uchar>(i, j))) {
+						right.push_back(cv::Point(j / 3 - 1, i));
+						rightfound = true;
 					}
 				}
             }
 
 			if (!rightfound) {  // no white this row
 				right.push_back(cv::Point(nCols / 3, i));  // TODO: change the method of error handling
-			}
+			}/*
 			if (!leftfound) {  // no white this row
 				left.push_back(cv::Point(0, i));  // TODO: change the method of error handling
-			}
+			}*/
         }
 		
 		for (i = 0; i < right.size() && i < left.size(); i++) {
 			mid.push_back(cv::Point((right[i].y + left[i].y) / 2, (right[i].x + left[i].x) / 2));
 		}
-		
 		for (i = 0; i < left.size(); i++)
 		{
-			cv::circle(binMat, left[i], 1, cv::Scalar(0, 255, 0));
+			cv::circle(binMat, left[i], 1, cv::Scalar(255, 0, 0));
 		}
 		for (i = 0; i < right.size(); i++)
 		{
-			cv::circle(binMat, right[i], 1, cv::Scalar(0, 255, 0));
-		}/*
-		for (i = 0; i < mid.size(); i++)
-		{
-			cv::circle(binMat, mid[i], 1, cv::Scalar(0, 255, 0));
+			cv::circle(binMat, right[i], 1, cv::Scalar(0, 0, 255));
 		}
-		*/
+
 		/*********************************************************************************************************/
 		
 		// polyfit 
-		// TODO: review codes below
-		cv::polylines(binMat, mid, false, cv::Scalar(0, 255, 0), 1, 8, 0);
 		cv::Mat A;
 		polynomial_curve_fit(mid, 3, A);
 		std::vector<cv::Point> points_fitted;
@@ -237,7 +228,20 @@ void UniRobot::imageProcess()
 		}
 
 		cv::polylines(binMat, points_fitted, false, cv::Scalar(0, 255, 255), 1, 8, 0);
-		
+
+		/*******************************************************************************************************/
+
+		// direction control
+		if (nCols / 2 > points_fitted[11 * nRows / 12].x) {
+			resInfo.direction = 0.03;
+		}
+		else if (nCols / 2 < points_fitted[11 * nRows / 12].x) {
+			resInfo.direction = -0.03;
+		}
+		else {
+			resInfo.direction = 0;
+		}
+
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
@@ -349,7 +353,7 @@ void UniRobot::run()
         //walk control
         mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
         mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
+        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
