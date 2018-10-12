@@ -9,7 +9,7 @@
 #include <RobotisOp2MotionManager.hpp>
 #include <RobotisOp2GaitManager.hpp>
 #include <RobotisOp2VisionManager.hpp>
-
+#include <BallTracker.h>  // TODO: delete this line
 
 #include <cassert>
 #include <cstdlib>
@@ -34,27 +34,7 @@ static double clamp(double value, double min, double max)
 
 static double minMotorPositions[NMOTORS];
 static double maxMotorPositions[NMOTORS];
-/*
-inline uchar* Mat2uchar(const Mat & src)
-{
-	int i = 0, j = 0;
-	int row = src.rows;
-	int col = src.cols;
 
-	uchar **dst = (uchar **)malloc(row * sizeof(uchar *));//二维数组dst[][]
-	for (i = 0; i < row; i++)
-		dst[i] = (uchar *)malloc(col * sizeof(uchar));
-
-	for (i = 0; i < row; i++)
-	{
-		for (j = 0; j < col; j++)
-		{
-			dst[i][j] = src.at<uchar>(i, j);//src的矩阵数据传给二维数组dst[][]
-		}
-	}
-	return *dst;
-}
-*/
 void UniRobot::imageProcess()
 {
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
@@ -63,14 +43,17 @@ void UniRobot::imageProcess()
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
-		Mat binMat = rgbMat.clone();
+		//Mat binMat = rgbMat.clone();
 
-		//getballcenter;
-		double ballx, bally;
+		RobotisOp2VisionManager Vision(320, 240, 120, 15, 100, 10, 50, 100);
+		double ballx = -1, bally = -1;
 		
+
+		//BallTracker tracker;
+
 	
-		showImage(binMat.data);
-		binMat.release();
+		//showImage(binMat.data);
+		//binMat.release();
 		/*Mat greyMat;
 		int i, j, k;
 		int nRows = rgbMat.rows;
@@ -133,9 +116,14 @@ void UniRobot::imageProcess()
 		//greyMat.release();
 		//Matgrey.release();
         //update the resInfo
-        resInfo.ball_found = false;
-        resInfo.ball_x = 0.0;
-        resInfo.ball_y = 0.0;
+		
+		/*
+		resInfo.ball_found = Vision.getBallCenter(ballx, bally, rgb);
+		if (resInfo.ball_found)cout << "found!" << endl;
+		else cout << "not found" << endl;*/
+
+        resInfo.ball_x = ballx;
+        resInfo.ball_y = bally;
     } else if (mode == MODE_LINE) {
         //TODO Write down your code
 		
