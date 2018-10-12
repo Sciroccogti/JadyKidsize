@@ -193,7 +193,7 @@ void UniRobot::imageProcess()
             }
 
 			if (!rightfound) {  // no white this row
-				right.push_back(cv::Point(nCols / 3, i));  // TODO: change the method of error handling
+				right.push_back(cv::Point(right[i-1].x, i));  // TODO: change the method of error handling
 			}/*
 			if (!leftfound) {  // no white this row
 				left.push_back(cv::Point(0, i));  // TODO: change the method of error handling
@@ -232,8 +232,8 @@ void UniRobot::imageProcess()
 		/*******************************************************************************************************/
 
 		// direction control
-		resInfo.direction = (nCols / 6 - points_fitted[11 * nRows / 12].x) / 3200;
-		cout << nCols / 6 - points_fitted[11 * nRows / 12].x << endl;
+		resInfo.direction = (nCols / 6.0 - points_fitted[11 * nRows / 12.0].x) / 200.0;
+		cout << resInfo.direction << endl;
 		/*
 		if (nCols / 2 > points_fitted[11 * nRows / 12].x) {
 			resInfo.direction = 0.03;
@@ -356,12 +356,12 @@ void UniRobot::run()
       {
         //walk control
         mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
-        mGaitManager->setYAmplitude(resInfo.direction); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
+        mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
+        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
