@@ -124,7 +124,7 @@ void UniRobot::imageProcess()
                 }
             }
         }
-
+		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		/*****************************************************************************************
 
 		// rectify the tilted pic
@@ -173,7 +173,7 @@ void UniRobot::imageProcess()
 				if (binMat.at<uchar>(i, j) && (j == 0 || !binMat.at<uchar>(i, j - 1)) && j < nCols / 2) {  // touch b2w before mid
 					lastleft = cv::Point(j / 3, i);
 				}
-				else if (j > nCols / 2) {
+				else if (j > nCols * 2 / 3) {
 					if (lastleft.x >= 0 && !leftfound) {
 						left.push_back(lastleft);
 						leftfound = true;
@@ -232,6 +232,9 @@ void UniRobot::imageProcess()
 		/*******************************************************************************************************/
 
 		// direction control
+		resInfo.direction = (nCols / 6 - points_fitted[11 * nRows / 12].x) / 3200;
+		cout << nCols / 6 - points_fitted[11 * nRows / 12].x << endl;
+		/*
 		if (nCols / 2 > points_fitted[11 * nRows / 12].x) {
 			resInfo.direction = 0.03;
 		}
@@ -241,11 +244,12 @@ void UniRobot::imageProcess()
 		else {
 			resInfo.direction = 0;
 		}
-
+		*/
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
 		binMat.release();
+		A.release();
         //update the resInfo
     }
     rgbMat.release();
@@ -352,12 +356,12 @@ void UniRobot::run()
       {
         //walk control
         mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
-        mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
+        mGaitManager->setYAmplitude(resInfo.direction); //y -1.0 ~ 1.0
+        mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
