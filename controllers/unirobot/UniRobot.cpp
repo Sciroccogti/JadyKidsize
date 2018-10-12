@@ -111,7 +111,7 @@ void UniRobot::imageProcess()
 		// Binarization
         Mat binMat = rgbMat.clone();
         uchar  *p = binMat.ptr(); 
-        int i, j, k;
+        int i, j;
         int nRows = rgbMat.rows;
         int nCols = rgbMat.cols * 3;
         
@@ -159,6 +159,7 @@ void UniRobot::imageProcess()
 
 		*******************************************************************************************************/
 
+		// get the mid line
 		bool leftfound, rightfound;  // black is false, white is true
 		cv::Point lastwhite;
 		vector<cv::Point> left, right, mid;
@@ -202,7 +203,7 @@ void UniRobot::imageProcess()
         }
 		
 		for (i = 0; i < right.size() && i < left.size(); i++) {
-			mid.push_back(cv::Point((right[i].x + left[i].x) / 2, (right[i].y + left[i].y) / 2));
+			mid.push_back(cv::Point((right[i].y + left[i].y) / 2, (right[i].x + left[i].x) / 2));
 		}
 		
 		for (i = 0; i < left.size(); i++)
@@ -212,13 +213,16 @@ void UniRobot::imageProcess()
 		for (i = 0; i < right.size(); i++)
 		{
 			cv::circle(binMat, right[i], 1, cv::Scalar(0, 255, 0));
-		}
+		}/*
 		for (i = 0; i < mid.size(); i++)
 		{
 			cv::circle(binMat, mid[i], 1, cv::Scalar(0, 255, 0));
 		}
-
-		//TODO: review codes below
+		*/
+		/*********************************************************************************************************/
+		
+		// polyfit 
+		// TODO: review codes below
 		cv::polylines(binMat, mid, false, cv::Scalar(0, 255, 0), 1, 8, 0);
 		cv::Mat A;
 		polynomial_curve_fit(mid, 3, A);
@@ -226,8 +230,12 @@ void UniRobot::imageProcess()
 		for (int x = 0; x < 400; x++) {
 			double y = A.at<double>(0, 0) + A.at<double>(1, 0) * x + A.at<double>(2, 0)*std::pow(x, 2) + A.at<double>(3, 0)*std::pow(x, 3);
 			points_fitted.push_back(cv::Point(x, y));
-
 		}
+		
+		for (i = 0; i < points_fitted.size(); i++) {
+			swap(points_fitted[i].x, points_fitted[i].y);
+		}
+
 		cv::polylines(binMat, points_fitted, false, cv::Scalar(0, 255, 255), 1, 8, 0);
 		
 		/*******************************************************************************************************/
