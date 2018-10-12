@@ -55,6 +55,7 @@ inline uchar* Mat2uchar(const Mat & src)
 	return *dst;
 }
 */
+
 void UniRobot::imageProcess()
 {
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
