@@ -107,16 +107,43 @@ void UniRobot::imageProcess()
         resInfo.ball_y = 0.0;
     } else if (mode == MODE_LINE) {
         //TODO Write down your code
-		
+		// Blue Detector
+		uchar *p = rgbMat.ptr();
+		int i, j;
+		int nRows = rgbMat.rows;
+		int nCols = rgbMat.cols * 3;/*
+		for (i = 0; i < nRows; i++) {
+			for (j = 0; j < nCols; j += 3) {
+				if (p[i * nCols + j + 2] > 240 && p[i * nCols + j] < 224) {
+					resInfo.bluecount = 1;
+					//cout << "found" << endl;
+					break;
+				}
+			}
+			if (resInfo.bluecount) {
+				break;
+			}
+		}
+
+		if (resInfo.bluelast && !resInfo.bluecount) {
+			resInfo.blueline++;
+		}
+
+		resInfo.bluelast = resInfo.bluecount;
+		resInfo.bluecount = 0;
+		//cout << "line:"<<resInfo.blueline <<"\tcount:"<<resInfo.bluelast<< endl;*/
+		/*******************************************************************************************************************************/
+
 		// Binarization
         Mat binMat = rgbMat.clone();
-        uchar  *p = binMat.ptr(); 
-        int i, j;
-        int nRows = rgbMat.rows;
-        int nCols = rgbMat.cols * 3;
+        p = binMat.ptr(); 
         
 		for (i = 0; i < nRows; i ++) {
             for (j = 0; j < nCols; j += 3) {
+				if (p[i * nCols + j +2] > 240 && p[i * nCols + j] < 64 && p[i * nCols + j + 1] < 64) {
+					resInfo.bluecount++;
+					//circle(binMat, Point(j / 3, i), 5, Scalar(0, 0, 255));
+				}
                 if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
                     p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
                 } else {
@@ -124,6 +151,16 @@ void UniRobot::imageProcess()
                 }
             }
         }
+
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 200) {
+			resInfo.blueline++;
+		}
+		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
+
+		resInfo.bluelastlast = resInfo.bluelast;
+		resInfo.bluelast = resInfo.bluecount > 200;
+		resInfo.bluecount = 0;
+
 		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		/*****************************************************************************************
 
@@ -233,7 +270,6 @@ void UniRobot::imageProcess()
 
 		// direction control
 		resInfo.direction = (nCols / 6.0 - points_fitted[11 * nRows / 12.0].x) / 200.0;
-		cout << resInfo.direction << endl;
 		/*
 		if (nCols / 2 > points_fitted[11 * nRows / 12].x) {
 			resInfo.direction = 0.03;
@@ -354,10 +390,22 @@ void UniRobot::run()
       }
       else if(mode == MODE_LINE) //mode line
       {
+		  if (resInfo.blueline > 1) {
+			  resInfo.stepcount++;
+		}
         //walk control
-        mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
-        mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
+		  if (resInfo.stepcount < 300) {
+			  //cout << resInfo.stepcount << endl;
+		   mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
+		   mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
+		   mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
+		  }
+		  else {
+			  mGaitManager->setXAmplitude(0.0); //x -1.0 ~ 1.0
+			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
+			  mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
+		  }
+
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
