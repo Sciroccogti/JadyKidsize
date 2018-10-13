@@ -107,37 +107,14 @@ void UniRobot::imageProcess()
         resInfo.ball_y = 0.0;
     } else if (mode == MODE_LINE) {
         //TODO Write down your code
-		// Blue Detector
-		uchar *p = rgbMat.ptr();
-		int i, j;
-		int nRows = rgbMat.rows;
-		int nCols = rgbMat.cols * 3;/*
-		for (i = 0; i < nRows; i++) {
-			for (j = 0; j < nCols; j += 3) {
-				if (p[i * nCols + j + 2] > 240 && p[i * nCols + j] < 224) {
-					resInfo.bluecount = 1;
-					//cout << "found" << endl;
-					break;
-				}
-			}
-			if (resInfo.bluecount) {
-				break;
-			}
-		}
-
-		if (resInfo.bluelast && !resInfo.bluecount) {
-			resInfo.blueline++;
-		}
-
-		resInfo.bluelast = resInfo.bluecount;
-		resInfo.bluecount = 0;
-		//cout << "line:"<<resInfo.blueline <<"\tcount:"<<resInfo.bluelast<< endl;*/
-		/*******************************************************************************************************************************/
 
 		// Binarization
         Mat binMat = rgbMat.clone();
-        p = binMat.ptr(); 
-        
+		uchar *p = binMat.ptr();
+		int i, j;
+		int nRows = rgbMat.rows;
+		int nCols = rgbMat.cols * 3;
+
 		for (i = 0; i < nRows; i ++) {
             for (j = 0; j < nCols; j += 3) {
 				if (p[i * nCols + j +2] > 240 && p[i * nCols + j] < 64 && p[i * nCols + j + 1] < 64) {
@@ -152,13 +129,13 @@ void UniRobot::imageProcess()
             }
         }
 
-		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 200) {
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
 			resInfo.blueline++;
 		}
 		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
 
 		resInfo.bluelastlast = resInfo.bluelast;
-		resInfo.bluelast = resInfo.bluecount > 200;
+		resInfo.bluelast = resInfo.bluecount > 320;
 		resInfo.bluecount = 0;
 
 		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
