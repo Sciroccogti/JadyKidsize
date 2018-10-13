@@ -129,13 +129,13 @@ void UniRobot::imageProcess()
             }
         }
 
-		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 200) {
 			resInfo.blueline++;
 		}
 		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
 
 		resInfo.bluelastlast = resInfo.bluelast;
-		resInfo.bluelast = resInfo.bluecount > 320;
+		resInfo.bluelast = resInfo.bluecount > 200;
 		resInfo.bluecount = 0;
 
 		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
