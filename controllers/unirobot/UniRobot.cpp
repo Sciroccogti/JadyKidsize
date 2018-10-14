@@ -128,14 +128,16 @@ void UniRobot::imageProcess()
             }
         }
 
-		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 200) {
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
 			resInfo.blueline++;
 		}
-		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
+		cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
 		resInfo.bluelastlast = resInfo.bluelast;
-		resInfo.bluelast = resInfo.bluecount > 200;
+		resInfo.bluelast = resInfo.bluecount > 320;
 		resInfo.bluecount = 0;
 
+		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
+		morphologyEx(binMat, binMat, MORPH_CLOSE, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		/*****************************************************************************************
 
 		// rectify the tilted pic
@@ -232,7 +234,7 @@ void UniRobot::imageProcess()
 		
 		/*********************************************************************************************************/
 		
-		resInfo.direction = (nCols / 6 - mid[19 * nRows / 20].x) / 200.0;
+		resInfo.direction = (nCols / 6 - mid[11 * nRows / 12].x) / 190.0;
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
@@ -359,7 +361,7 @@ void UniRobot::run()
 		  mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.40, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
