@@ -9,7 +9,7 @@
 #include <RobotisOp2MotionManager.hpp>
 #include <RobotisOp2GaitManager.hpp>
 #include <RobotisOp2VisionManager.hpp>
-
+#include <BallTracker.h>  // TODO: delete this line
 
 #include <cassert>
 #include <cstdlib>
@@ -34,27 +34,6 @@ static double clamp(double value, double min, double max)
 
 static double minMotorPositions[NMOTORS];
 static double maxMotorPositions[NMOTORS];
-/*
-inline uchar* Mat2uchar(const Mat & src)
-{
-	int i = 0, j = 0;
-	int row = src.rows;
-	int col = src.cols;
-
-	uchar **dst = (uchar **)malloc(row * sizeof(uchar *));//二维数组dst[][]
-	for (i = 0; i < row; i++)
-		dst[i] = (uchar *)malloc(col * sizeof(uchar));
-
-	for (i = 0; i < row; i++)
-	{
-		for (j = 0; j < col; j++)
-		{
-			dst[i][j] = src.at<uchar>(i, j);//src的矩阵数据传给二维数组dst[][]
-		}
-	}
-	return *dst;
-}
-*/
 
 void UniRobot::imageProcess()
 {
@@ -64,7 +43,20 @@ void UniRobot::imageProcess()
 
     if (mode == MODE_BALL) {
         //TODO Write down your code
+
+
+		//Mat binMat = rgbMat.clone();
+
+		RobotisOp2VisionManager Vision(320, 240, 120, 15, 100, 10, 50, 100);
+		double ballx = -1, bally = -1;
 		
+
+		//BallTracker tracker;
+
+	
+		//showImage(binMat.data);
+		//binMat.release();
+
 		/*Mat greyMat;
 		int i, j, k;
 		int nRows = rgbMat.rows;
@@ -102,44 +94,61 @@ void UniRobot::imageProcess()
 
 		/****************************/
 		//霍夫圆变换
-		Mat src_gray, src_rgb;
-		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);/*
-		uchar  *p = src_gray.ptr();
-		uchar  *q = rgbMat.ptr();
-		int i, j, k;
-		int nRows = rgbMat.rows;
-		int nCols = rgbMat.cols * 3;
-		/*
-		for (i = 0; i < nRows; i++) {
-			for (j = 0; j < nCols; j += 3) {
-				p[i * nCols + j / 3] = 0.299*q[i * nCols + j] + 0.587*q[i * nCols + j + 1] + 0.114*q[i * nCols + j + 2];
-				/*if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
-					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
-				}
-				else {
-					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
-				}
-			}
-		}
-		*/
+		Mat src_gray, src_rgb, edge, dstMat(rgbMat.size(), rgbMat.type());
+		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);
 		//GaussianBlur(src_gray, src_gray, Size(9, 9), 2, 2);
 
-		//vector<Vec3f> circles;
-		//HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, 1, src_gray.rows / 8, 200, 100, 0, 0);
-		cvtColor(src_gray, src_rgb, CV_GRAY2RGB);
+		
+		// CannyThreshold
+		//cvtColor(binMat, binGray, CV_RGB2GRAY);  // try BGR
+		blur(src_gray, edge, Size(3, 3));
+		Canny(edge, edge, 30, 90, 3);
+		dstMat = Scalar::all(0);
+		src_gray.copyTo(dstMat, edge);
+		
+
+		vector<Vec3f> circles;
+		HoughCircles(edge, circles, CV_HOUGH_GRADIENT, 1, edge.rows / 3, 100, 30, 0, 58);
+		cvtColor(edge, src_rgb, CV_GRAY2RGB);
+		//cout << circles.size() << endl;
+		int nCols = edge .cols;
+		//cout << nCols << endl;
+		resInfo.direction = 0.0;
+		for (size_t i = 0; i < circles.size(); i++)
+		{
+			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+			ballx = cvRound(circles[i][0]);
+			bally = cvRound(circles[i][1]);
+			resInfo.direction = -(circles[i][0] - 160.0 ) / 1000.0;
+			int radius = cvRound(circles[i][2]);
+			//cout << circles[i][0] << endl;
+
+			// circle center
+			circle(src_rgb, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+			// circle outline
+			circle(src_rgb, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+		}
+		cout << resInfo.direction << endl;
+		
 		showImage(src_rgb.data);
 		//waitKey(0);
 		src_rgb.release();
 		src_gray.release();
+		circles.clear();
 		/****************************/
 
 		//showImage(greyMat.data);
 		//greyMat.release();
 		//Matgrey.release();
         //update the resInfo
-        resInfo.ball_found = false;
-        resInfo.ball_x = 0.0;
-        resInfo.ball_y = 0.0;
+		
+		/*
+		resInfo.ball_found = Vision.getBallCenter(ballx, bally, rgb);
+		if (resInfo.ball_found)cout << "found!" << endl;
+		else cout << "not found" << endl;*/
+		resInfo.ball_x = ballx;
+		resInfo.ball_y = bally;
+
     } else if (mode == MODE_LINE) {
         //TODO Write down your code
 		
@@ -325,9 +334,14 @@ void UniRobot::run()
           }
         }
         //walk control
-        mGaitManager->setXAmplitude(0.0); //x -1.0 ~ 1.0
+		if ( abs (resInfo.direction) < 0.005 && abs (resInfo.direction)>0.0001) {
+			mGaitManager->setXAmplitude(0.75); //x -1.0 ~ 1.0
+		}
+		else {
+			mGaitManager->setXAmplitude(0.0);
+		}
         mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
+        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
         mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
