@@ -155,12 +155,15 @@ void UniRobot::imageProcess()
 		// Binarization
         Mat binMat = rgbMat.clone();
         uchar  *p = binMat.ptr(); 
-        int i, j, k;
+        int i, j;
         int nRows = rgbMat.rows;
         int nCols = rgbMat.cols * 3;
         
 		for (i = 0; i < nRows; i ++) {
             for (j = 0; j < nCols; j += 3) {
+				if (p[i * nCols + j + 2] > 240 && p[i * nCols + j] < 64 && p[i * nCols + j + 1] < 64) {
+					resInfo.bluecount++;
+				}
                 if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
                     p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
                 } else {
@@ -168,7 +171,13 @@ void UniRobot::imageProcess()
                 }
             }
         }
-
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
+			resInfo.blueline++;
+		}
+		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
+		resInfo.bluelastlast = resInfo.bluelast;
+		resInfo.bluelast = resInfo.bluecount > 320;
+		resInfo.bluecount = 0;
 		/*****************************************************************************************
 
 		// rectify the tilted pic
@@ -207,7 +216,6 @@ void UniRobot::imageProcess()
 		cv::Point indicator;
 
 		if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6) && !binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // main detectors both touch black
-			//if (!binMat.at<uchar>(nRows / 3, nCols / 3) && !binMat.at<uchar>(nRows / 3, 2 * nCols / 3)) 
 			if (!binMat.at<uchar>(nRows / 3, nCols / 3)) {  // assistant left detector
 				resInfo.direction = -0.3;
 				indicator.x = nCols / 9;
@@ -351,11 +359,21 @@ void UniRobot::run()
       }
       else if(mode == MODE_LINE) //mode line
       {
+		  if (resInfo.blueline > 1) {
+			  resInfo.stepcount++;
+		  }
         //walk control
-        mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
-        mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
-        mGaitManager->step(mTimeStep);
+		  if (resInfo.stepcount < 300) {
+			  mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
+			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
+			  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
+		  }
+		  else {
+			  mGaitManager->setXAmplitude(0.0); //x -1.0 ~ 1.0
+			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
+			  mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
+		  }
+		mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
         headPosition = clamp(0.40, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
