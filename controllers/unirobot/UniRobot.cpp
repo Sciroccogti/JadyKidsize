@@ -260,13 +260,13 @@ void UniRobot::imageProcess()
 		*/
 		/*******************************************************************************************************/
 		cv::Point indicator;
-		int ar1=5,ar2=6;
-		int ac1=1,ac2=2;
-		int br1=5,br2=6;
-		int bc1=1,bc2=2;
+		int ar1=1,ar2=2;
+		int ac1=1,ac2=8;
+		int br1=1,br2=2;
+		int bc1=7,bc2=8;
 		int cr1=5,cr2=6;
 		int cc1=1,cc2=2;
-		int dr1=5,dr2=6;
+		int dr1=1,dr2=3;
 		int dc1=1,dc2=2;
 		if (!binMat.at<uchar>(cr1*nRows/cr2,cc1*nCols /cc2/ 3))//C白
 		{
