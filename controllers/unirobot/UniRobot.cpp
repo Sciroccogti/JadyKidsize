@@ -236,7 +236,113 @@ void UniRobot::imageProcess()
 		
 		resInfo.direction = (nCols / 6 - mid[11 * nRows / 12].x) / 190.0;
 		/*******************************************************************************************************/
-
+		cv::Point indicator;
+	           int ar1 = 1, ar2 = 2;
+		int ac1 = 2, ac2 = 8;
+		int br1 = 1, br2 = 2;
+		int bc1 = 3, bc2 = 4;
+		int cr1 = 3, cr2 = 4;
+		int cc1 = 1, cc2 = 2;
+		int dr1 = 1, dr2 = 2;
+		int dc1 = 1, dc2 = 3;
+		int er1 = 1, er2 = 3;
+		int ec1 = 1, ec2 = 3;
+		int fr1=1,fr2=3;
+		int fc1=2,fc2=3;
+		if (binMat.at<uchar>(cr1*nRows / cr2, cc1*nCols / cc2 / 3))//C白
+		{
+			//拟合曲线运行
+			/*if (binMat.at<uchar>(dr1*nRows / dr2, dc1*nCols / dc2 / 3))//D白
+			{
+			    indicator.x = dc1 * nCols / dc2 / 3;
+			    indicator.y = dr1 * nRows / dr2;
+			    cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+		               resInfo.direction = 0;//直行
+			}
+			else
+			{
+			    indicator.x = dc1 * nCols / dc2 / 3;
+			    indicator.y = dr1 * nRows / dr2;
+			    cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+			    if(binMat.at<uchar>(er1*nRows/er2,ec1*nCols/ec2/3))
+			    {
+			        indicator.x = ec1 * nCols / ec2 / 3;
+			        indicator.y = er1 * nRows / er2;
+			        cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+		                    //resInfo.direction = 0.1;//直行
+			    }if(binMat.at<uchar>(fr1*nRows/fr2,fc1*nCols/fc2/3))
+			    {
+			        indicator.x = fc1 * nCols / fc2 / 3;
+			        indicator.y = fr1 * nRows / fr2;
+			        cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+		                    //resInfo.direction = -0.1;//直行
+			    }
+			    
+			}*/
+			indicator.x = cc1 * nCols / cc2 / 3;
+			indicator.y = cr1 * nRows / cr2;
+			cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+		}
+		else//C黑
+		{
+			indicator.x = nCols / 6;
+			indicator.y = 5 * nRows / 6;
+			cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+			if (binMat.at<uchar>(dr1*nRows / dr2, dc1*nCols / dc2 / 3))//D白
+			{
+				indicator.x = dc1 * nCols / dc2 / 3;
+				indicator.y = dr1 * nRows / dr2;
+				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+				resInfo.direction = 0;//直行
+			}
+			else//D黑
+			{
+				indicator.x = dc1 * nCols / dc2 / 3;
+				indicator.y = dr1 * nRows / dr2;
+				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+				if (binMat.at<uchar>(ar1 *nRows / ar2, ac1 *nCols / ac2 / 3))//A白
+				{
+					indicator.x = ac1 *nCols / ac2 / 3;
+					indicator.y = ar1 *nRows / ar2;
+					cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+					if (!binMat.at<uchar>(br1*nRows / br2, bc1 * nCols / bc2 / 3))//B黑
+					{
+						indicator.x = bc1 * nCols / bc2 / 3;
+						indicator.y = br1 * nRows / br2;
+						cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+						//resInfo.direction = 0.1;//左转
+						 //拟合曲线运行
+					}
+					else//B白
+					{
+						indicator.x = bc1 * nCols / bc2 / 3;
+						indicator.y = br1 * nRows / br2;
+						cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+						//拟合曲线运行
+					}
+				}
+				else //A黑
+				{
+					indicator.x = ac1 *nCols / ac2 / 3;
+					indicator.y = ar1 *nRows / ar2;
+					cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+					if (!binMat.at<uchar>(br1*nRows / br2, bc1 * nCols / bc2 / 3))//B黑
+					{
+						indicator.x = bc1 * nCols / bc2 / 3;
+						indicator.y = br1 * nRows / br2;
+						cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+						//拟合曲线运行
+					}
+					else//B白
+					{
+						indicator.x = bc1 * nCols / bc2 / 3;
+						indicator.y = br1 * nRows / br2;
+						cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+						//resInfo.direction = -0.1;//右转
+					}
+				}
+			}
+		}
 		showImage(binMat.data);
 		binMat.release();
         //update the resInfo
