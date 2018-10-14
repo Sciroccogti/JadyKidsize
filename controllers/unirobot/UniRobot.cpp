@@ -92,6 +92,27 @@ void UniRobot::imageProcess()
 		/*************************/
 
 		/****************************/
+		Mat binMat = rgbMat.clone();
+		//morphologyEx(rgbMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(6, 6), Point(0, 0)));//开闭
+		uchar  *p = binMat.ptr();
+		int i, j;
+		int Rows = rgbMat.rows;
+		int Cols = rgbMat.cols * 3;
+
+		for (i = 0; i  <Rows; i++) {
+			for (j = 0; j < Cols; j += 3) {
+				if (p[i * Cols + j + 2] > 240 && p[i * Cols + j] < 64 && p[i * Cols + j + 1] < 64) {
+					resInfo.bluecount++;
+				}
+				if ((p[i * Cols + j] < 250 && p[i * Cols + j + 1] < 250 && p[i * Cols + j + 2] < 250)|| i > 60 ) {  // TODO: modify diametres
+					p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 0;
+				}
+				else {
+					p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 255;
+				}
+			}
+		}//二值化
+		
 		//霍夫圆变换
 		Mat src_gray, src_rgb, edge, dstMat(rgbMat.size(), rgbMat.type());
 		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);
@@ -107,30 +128,32 @@ void UniRobot::imageProcess()
 		
 
 		vector<Vec3f> circles;
-		HoughCircles(edge, circles, CV_HOUGH_GRADIENT, 1, edge.rows / 3, 100, 30, 0, 58);
+		HoughCircles(edge, circles, CV_HOUGH_GRADIENT, 1, edge.rows / 3, 100, 35, 2, 58);
+		
 		cvtColor(edge, src_rgb, CV_GRAY2RGB);
 		//cout << circles.size() << endl;
 		int nCols = edge .cols;
 		//cout << nCols << endl;
 		resInfo.direction = 0.0;
-		for (size_t i = 0; i < circles.size(); i++)
+		for (size_t i = 0; i < circles.size()&& cvRound(circles[i][2])>1; i++)
 		{
 			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 			ballx = cvRound(circles[i][0]);
 			bally = cvRound(circles[i][1]);
-			resInfo.direction = -(circles[i][0] - 160.0 ) / 300.0;
+			resInfo.direction = -(circles[i][0] - 160.0 ) / 500.0;
 			int radius = cvRound(circles[i][2]);
-			//cout << circles[i][0] << endl;
+			//cout << radius << endl;
 
 			// circle center
 			circle(src_rgb, center, 3, Scalar(0, 255, 0), -1, 8, 0);
 			// circle outline
 			circle(src_rgb, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 		}
-		//cout << resInfo.direction << "\t"<< bally<< endl;
+		cout << resInfo.direction <<  endl;
 		
 		showImage(src_rgb.data);
 		//waitKey(0);
+		binMat.release();
 		src_rgb.release();
 		src_gray.release();
 		circles.clear();
@@ -148,7 +171,7 @@ void UniRobot::imageProcess()
 		resInfo.ball_found = false;
 		resInfo.ball_x = ballx;
 		resInfo.ball_y = bally;
-		if (resInfo.ball_x > 0 && resInfo.ball_y > 0) {
+		if (resInfo.ball_x >= 0 && resInfo.ball_y >= 0) {
 			resInfo.ball_found = true;
 		}
 
@@ -331,33 +354,36 @@ void UniRobot::run()
       //kick ball
       if(mode == MODE_BALL) // mode ball 
       {
-        if(resInfo.ball_found)
-        {
-          if (resInfo.ball_y > 200) 
-          {
-			  cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
-            mGaitManager->stop();
-            wait(500);
-            if (resInfo.ball_x<160)
-              mMotionManager->playPage(13); // left kick
-            else
-              mMotionManager->playPage(12); // right kick
-            mMotionManager->playPage(9); // walkready position
-            mGaitManager->start();
-          }
-        }
-        //walk control
-		if ( abs (resInfo.direction) < 0.05 && abs (resInfo.direction) > 0.00001 && resInfo.ball_y < 201) {
-			mGaitManager->setXAmplitude(0.75); //x -1.0 ~ 1.0
-			cout << "walk"<<resInfo.ball_y << endl;
-		}
-		else {
-			cout <<"stop"<< resInfo.ball_y << endl;
-			mGaitManager->setXAmplitude(0.0);
-		}
-        mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-        mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
-        mGaitManager->step(mTimeStep);
+		  if (resInfo.ball_found)
+		  {
+			  if (resInfo.ball_y > 200)
+			  {
+				  cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
+				  mGaitManager->stop();
+				  wait(500);
+				  //mGaitManager->setMoveAimOn(1);
+				  if (resInfo.ball_x < 160)
+					  mMotionManager->playPage(13); // left kick
+				  else
+					  mMotionManager->playPage(12); // right kick
+				  mMotionManager->playPage(9); // walkready position
+				  mGaitManager->start();
+			  }
+
+			  //walk control
+			  if (abs(resInfo.direction) < 0.05 && abs(resInfo.direction) > 0.00001 && resInfo.ball_y < 201) {
+				  mGaitManager->setXAmplitude(0.85); //x -1.0 ~ 1.0
+				  //cout << "walk"<<resInfo.ball_y << endl;
+			  }
+			  else {
+				  //cout <<"stop"<< resInfo.ball_y << endl;
+				  mGaitManager->setXAmplitude(0.0);
+			  }
+			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
+			  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
+		  }
+		mGaitManager->setAAmplitude(1.0);
+		mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
         headPosition = clamp(0.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
