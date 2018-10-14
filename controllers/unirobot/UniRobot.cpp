@@ -171,12 +171,12 @@ void UniRobot::imageProcess()
                 }
             }
         }
-		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 160) {
 			resInfo.blueline++;
 		}
-		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
+		cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
 		resInfo.bluelastlast = resInfo.bluelast;
-		resInfo.bluelast = resInfo.bluecount > 320;
+		resInfo.bluelast = resInfo.bluecount > 160;
 		resInfo.bluecount = 0;
 		/*****************************************************************************************
 
@@ -230,13 +230,13 @@ void UniRobot::imageProcess()
 			}
 		}
 		else if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6)) {  // left detector touch balck
-			resInfo.direction = -0.9;
+			resInfo.direction = -0.8;
 			indicator.x = nCols / 18;
 			indicator.y = 2 * nRows / 3;
 			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
 		}
 		else if (!binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // right detector touch the balck
-			resInfo.direction = 0.9;
+			resInfo.direction = 0.8;
 			indicator.x = 5 * nCols / 18;
 			indicator.y = 2 * nRows / 3;
 			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
