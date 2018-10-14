@@ -181,10 +181,10 @@ void UniRobot::imageProcess()
         int nCols = rgbMat.cols * 3;
         
 		for (i = 0; i < nRows; i ++) {
-            for (j = 0; j < nCols; j += 3) {
+            for (j = 0; j < nCols; j += 3) {/*
 				if (p[i * nCols + j + 2] > 240 && p[i * nCols + j] < 64 && p[i * nCols + j + 1] < 64) {
 					resInfo.bluecount++;
-				}
+				}*/
                 if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
                     p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
                 } else {
@@ -192,13 +192,14 @@ void UniRobot::imageProcess()
                 }
             }
         }
+		/*
 		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 160) {
 			resInfo.blueline++;
 		}
 		cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
 		resInfo.bluelastlast = resInfo.bluelast;
 		resInfo.bluelast = resInfo.bluecount > 160;
-		resInfo.bluecount = 0;
+		resInfo.bluecount = 0;*/
 		/*****************************************************************************************
 
 		// rectify the tilted pic
@@ -406,9 +407,12 @@ void UniRobot::run()
       }
       else if(mode == MODE_LINE) //mode line
       {
+		  //blue line detector
+		  /*
 		  if (resInfo.blueline > 1) {
 			  resInfo.stepcount++;
-		  }
+		  }*/
+
         //walk control
 		  if (resInfo.stepcount < 300) {
 			  mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
