@@ -131,7 +131,7 @@ void UniRobot::imageProcess()
 		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
 			resInfo.blueline++;
 		}
-		cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
+		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
 		resInfo.bluelastlast = resInfo.bluelast;
 		resInfo.bluelast = resInfo.bluecount > 320;
 		resInfo.bluecount = 0;
