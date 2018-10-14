@@ -33,28 +33,6 @@ static double clamp(double value, double min, double max)
 
 static double minMotorPositions[NMOTORS];
 static double maxMotorPositions[NMOTORS];
-/*
-inline uchar* Mat2uchar(const Mat & src)
-{
-	int i = 0, j = 0;
-	int row = src.rows;
-	int col = src.cols;
-
-	uchar **dst = (uchar **)malloc(row * sizeof(uchar *));//二维数组dst[][]
-	for (i = 0; i < row; i++)
-		dst[i] = (uchar *)malloc(col * sizeof(uchar));
-
-	for (i = 0; i < row; i++)
-	{
-		for (j = 0; j < col; j++)
-		{
-			dst[i][j] = src.at<uchar>(i, j);//src的矩阵数据传给二维数组dst[][]
-		}
-	}
-	return *dst;
-}
-*/
-
 
 bool polynomial_curve_fit(std::vector<cv::Point>& key_point, int n, cv::Mat& A)//https://blog.csdn.net/guduruyu/article/details/72866144
 {
@@ -117,10 +95,10 @@ void UniRobot::imageProcess()
 
 		for (i = 0; i < nRows; i ++) {
             for (j = 0; j < nCols; j += 3) {
+				/*
 				if (p[i * nCols + j +2] > 240 && p[i * nCols + j] < 64 && p[i * nCols + j + 1] < 64) {
 					resInfo.bluecount++;
-					//circle(binMat, Point(j / 3, i), 5, Scalar(0, 0, 255));
-				}
+				}*/
                 if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
                     p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
                 } else {
@@ -128,7 +106,7 @@ void UniRobot::imageProcess()
                 }
             }
         }
-
+		/*
 		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 200) {
 			resInfo.blueline++;
 		}
@@ -137,7 +115,7 @@ void UniRobot::imageProcess()
 		resInfo.bluelastlast = resInfo.bluelast;
 		resInfo.bluelast = resInfo.bluecount > 200;
 		resInfo.bluecount = 0;
-
+		*/
 		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		/*****************************************************************************************
 
@@ -247,17 +225,7 @@ void UniRobot::imageProcess()
 
 		// direction control
 		resInfo.direction = (nCols / 6.0 - points_fitted[11 * nRows / 12.0].x) / 200.0;
-		/*
-		if (nCols / 2 > points_fitted[11 * nRows / 12].x) {
-			resInfo.direction = 0.03;
-		}
-		else if (nCols / 2 < points_fitted[11 * nRows / 12].x) {
-			resInfo.direction = -0.03;
-		}
-		else {
-			resInfo.direction = 0;
-		}
-		*/
+
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
@@ -367,12 +335,13 @@ void UniRobot::run()
       }
       else if(mode == MODE_LINE) //mode line
       {
+		  //blue line detector
+		  /*
 		  if (resInfo.blueline > 1) {
 			  resInfo.stepcount++;
-		}
+		}*/
         //walk control
 		  if (resInfo.stepcount < 300) {
-			  //cout << resInfo.stepcount << endl;
 		   mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
 		   mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
 		   mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
