@@ -128,7 +128,7 @@ void UniRobot::imageProcess()
 			// circle outline
 			circle(src_rgb, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 		}
-		cout << resInfo.direction << endl;
+		cout << resInfo.direction << "\t"<< bally<< endl;
 		
 		showImage(src_rgb.data);
 		//waitKey(0);
@@ -146,8 +146,12 @@ void UniRobot::imageProcess()
 		resInfo.ball_found = Vision.getBallCenter(ballx, bally, rgb);
 		if (resInfo.ball_found)cout << "found!" << endl;
 		else cout << "not found" << endl;*/
+		resInfo.ball_found = false;
 		resInfo.ball_x = ballx;
 		resInfo.ball_y = bally;
+		if (resInfo.ball_x > 0 && resInfo.ball_y > 0) {
+			resInfo.ball_found = true;
+		}
 
     } else if (mode == MODE_LINE) {
         //TODO Write down your code
@@ -329,8 +333,9 @@ void UniRobot::run()
       {
         if(resInfo.ball_found)
         {
-          if (resInfo.ball_y > 0.35) 
+          if (resInfo.ball_y > 200) 
           {
+			  cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
             mGaitManager->stop();
             wait(500);
             if (resInfo.ball_x<0.0)
@@ -342,7 +347,7 @@ void UniRobot::run()
           }
         }
         //walk control
-		if ( abs (resInfo.direction) < 0.005 && abs (resInfo.direction)>0.0001) {
+		if ( abs (resInfo.direction) < 0.005 && abs (resInfo.direction)>0.0001 && resInfo.ball_y < 201) {
 			mGaitManager->setXAmplitude(0.75); //x -1.0 ~ 1.0
 		}
 		else {

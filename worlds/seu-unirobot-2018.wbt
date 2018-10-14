@@ -29,13 +29,12 @@ DirectionalLight {
   intensity 0.7
 }
 Field {
-  #frame1Color 0.9 0.8 0.2
 }
 DEF ROBOTISOP2 RobotisOp2 {
   translation -0.75 0.233277 2.85
   rotation 0 1 0 -1.57
   controller "unirobot"
-  controllerArgs "2"
+  controllerArgs "1"
   cameraWidth 320
   cameraHeight 240
 }
