@@ -50,7 +50,6 @@ void UniRobot::imageProcess()
 		RobotisOp2VisionManager Vision(320, 240, 120, 15, 100, 10, 50, 100);
 		double ballx = -1, bally = -1;
 		
-
 		//BallTracker tracker;
 
 	
@@ -119,7 +118,7 @@ void UniRobot::imageProcess()
 			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 			ballx = cvRound(circles[i][0]);
 			bally = cvRound(circles[i][1]);
-			resInfo.direction = -(circles[i][0] - 160.0 ) / 1000.0;
+			resInfo.direction = -(circles[i][0] - 160.0 ) / 300.0;
 			int radius = cvRound(circles[i][2]);
 			//cout << circles[i][0] << endl;
 
@@ -128,7 +127,7 @@ void UniRobot::imageProcess()
 			// circle outline
 			circle(src_rgb, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 		}
-		cout << resInfo.direction << "\t"<< bally<< endl;
+		//cout << resInfo.direction << "\t"<< bally<< endl;
 		
 		showImage(src_rgb.data);
 		//waitKey(0);
@@ -152,6 +151,7 @@ void UniRobot::imageProcess()
 		if (resInfo.ball_x > 0 && resInfo.ball_y > 0) {
 			resInfo.ball_found = true;
 		}
+
 
     } else if (mode == MODE_LINE) {
         //TODO Write down your code
@@ -338,7 +338,7 @@ void UniRobot::run()
 			  cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
             mGaitManager->stop();
             wait(500);
-            if (resInfo.ball_x<0.0)
+            if (resInfo.ball_x<160)
               mMotionManager->playPage(13); // left kick
             else
               mMotionManager->playPage(12); // right kick
@@ -347,10 +347,12 @@ void UniRobot::run()
           }
         }
         //walk control
-		if ( abs (resInfo.direction) < 0.005 && abs (resInfo.direction)>0.0001 && resInfo.ball_y < 201) {
+		if ( abs (resInfo.direction) < 0.05 && abs (resInfo.direction) > 0.00001 && resInfo.ball_y < 201) {
 			mGaitManager->setXAmplitude(0.75); //x -1.0 ~ 1.0
+			cout << "walk"<<resInfo.ball_y << endl;
 		}
 		else {
+			cout <<"stop"<< resInfo.ball_y << endl;
 			mGaitManager->setXAmplitude(0.0);
 		}
         mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
