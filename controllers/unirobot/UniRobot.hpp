@@ -54,7 +54,11 @@ class UniRobot : public webots::Robot {
     {
       bool ball_found;
       double ball_x, ball_y;
+<<<<<<< HEAD
 	  double direction;
+=======
+	  double direction;  // -1 is right, 1 is left
+>>>>>>> hy
 	  int blueline = 0;
 	  int stepcount = 0;
 	  int bluecount = 0;

@@ -208,5 +208,26 @@
     <ClCompile Include="controllers\unirobot\UniRobot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="libraries\managers\src\RobotisOp2VisionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\BallFollower.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\BallTracker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\ColorFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\Image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\ImgProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

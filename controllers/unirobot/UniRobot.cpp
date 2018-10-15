@@ -44,6 +44,7 @@ inline uchar* Mat2uchar(const Mat & src)
 	for (i = 0; i < row; i++)
 		dst[i] = (uchar *)malloc(col * sizeof(uchar));
 
+<<<<<<< HEAD
 	for (i = 0; i < row; i++)
 	{
 		for (j = 0; j < col; j++)
@@ -92,6 +93,8 @@ bool polynomial_curve_fit(std::vector<cv::Point>& key_point, int n, cv::Mat& A)/
 }
 
 
+=======
+>>>>>>> hy
 void UniRobot::imageProcess()
 {
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
@@ -128,6 +131,7 @@ void UniRobot::imageProcess()
             }
         }
 		/*
+<<<<<<< HEAD
 		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
 			resInfo.blueline++;
 		}
@@ -138,6 +142,15 @@ void UniRobot::imageProcess()
 		*/
 		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		morphologyEx(binMat, binMat, MORPH_CLOSE, getStructuringElement(0, Size(10, 10), Point(0, 0)));
+=======
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 160) {
+			resInfo.blueline++;
+		}
+		cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
+		resInfo.bluelastlast = resInfo.bluelast;
+		resInfo.bluelast = resInfo.bluecount > 160;
+		resInfo.bluecount = 0;*/
+>>>>>>> hy
 		/*****************************************************************************************
 
 		// rectify the tilted pic
@@ -170,6 +183,7 @@ void UniRobot::imageProcess()
 		dstMat = Scalar::all(0);
 		binMat.copyTo(dstMat, edge);
 
+<<<<<<< HEAD
 		*******************************************************************************************************/
 
 		// get the mid line
@@ -209,6 +223,25 @@ void UniRobot::imageProcess()
 
 			if (!rightfound) {  // no white this row
 				right.push_back(cv::Point(nCols / 3, i));  // TODO: change the method of error handling
+=======
+		/*******************************************************************************************************/
+
+		// RoadDetection
+		cv::Point indicator;
+
+		if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6) && !binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // main detectors both touch black
+			if (!binMat.at<uchar>(nRows / 3, nCols / 3)) {  // assistant left detector
+				resInfo.direction = -0.3;
+				indicator.x = nCols / 9;
+				indicator.y = nRows / 3;
+				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+			}
+			else if (!binMat.at<uchar>(nRows / 3, 2 * nCols / 3)) {  // assistant right detector
+				resInfo.direction = 0.3;
+				indicator.x = 2 * nCols / 9;
+				indicator.y = nRows / 3;
+				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+>>>>>>> hy
 			}
 			if (!leftfound) {  // no white this row
 				left.push_back(cv::Point(0, i));  // TODO: change the method of error handling
@@ -231,11 +264,27 @@ void UniRobot::imageProcess()
 		{
 			cv::circle(binMat, mid[i], 1, cv::Scalar(0, 255, 0));
 		}
+		else if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6)) {  // left detector touch balck
+			resInfo.direction = -0.8;
+			indicator.x = nCols / 18;
+			indicator.y = 2 * nRows / 3;
+			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
+		}
+		else if (!binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // right detector touch the balck
+			resInfo.direction = 0.8;
+			indicator.x = 5 * nCols / 18;
+			indicator.y = 2 * nRows / 3;
+			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
+		}
+		else {
+			resInfo.direction = 0;
+		}
 		
 		/*********************************************************************************************************/
 		
 		resInfo.direction = (nCols / 6 - mid[11 * nRows / 12].x) / 190.0;
 		/*******************************************************************************************************/
+<<<<<<< HEAD
 		cv::Point indicator;
 	           int ar1 = 1, ar2 = 2;
 		int ac1 = 2, ac2 = 8;
@@ -345,6 +394,12 @@ void UniRobot::imageProcess()
 		}
 		showImage(binMat.data);
 		binMat.release();
+=======
+
+		showImage(binMat.data);
+		binMat.release();
+		//dstMat.release();
+>>>>>>> hy
         //update the resInfo
     }
     rgbMat.release();
@@ -448,6 +503,7 @@ void UniRobot::run()
         mMotors[19]->setPosition(headPosition);
       }
       else if(mode == MODE_LINE) //mode line
+<<<<<<< HEAD
       {/*
 		  if (resInfo.blueline > 1) {
 			  resInfo.stepcount++;
@@ -455,6 +511,17 @@ void UniRobot::run()
         //walk control
 		  if (resInfo.stepcount < 300) {
 			  //cout << resInfo.stepcount << endl;
+=======
+      {
+		  //blue line detector
+		  /*
+		  if (resInfo.blueline > 1) {
+			  resInfo.stepcount++;
+		  }*/
+
+        //walk control
+		  if (resInfo.stepcount < 300) {
+>>>>>>> hy
 			  mGaitManager->setXAmplitude(1.0); //x -1.0 ~ 1.0
 			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
 			  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
@@ -464,7 +531,11 @@ void UniRobot::run()
 			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
 			  mGaitManager->setAAmplitude(0.0); //dir -1.0 ~ 1.0
 		  }
+<<<<<<< HEAD
 		  mGaitManager->step(mTimeStep);
+=======
+		mGaitManager->step(mTimeStep);
+>>>>>>> hy
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
         headPosition = clamp(0.40, minMotorPositions[19], maxMotorPositions[19]); //head pitch position

@@ -177,6 +177,13 @@
   <ItemGroup>
     <ClCompile Include="controllers\unirobot\main.cpp" />
     <ClCompile Include="controllers\unirobot\UniRobot.cpp" />
+    <ClCompile Include="libraries\managers\src\RobotisOp2VisionManager.cpp" />
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\BallFollower.cpp" />
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\BallTracker.cpp" />
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\Camera.cpp" />
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\ColorFinder.cpp" />
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\Image.cpp" />
+    <ClCompile Include="libraries\robotis-op2\robotis\Framework\src\vision\ImgProcess.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
