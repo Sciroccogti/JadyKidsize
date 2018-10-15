@@ -116,10 +116,10 @@ void UniRobot::imageProcess()
         int nCols = rgbMat.cols * 3;
         
 		for (i = 0; i < nRows; i ++) {
-            for (j = 0; j < nCols; j += 3) {
+            for (j = 0; j < nCols; j += 3) {/*
 				if (p[i * nCols + j + 2] > 240 && p[i * nCols + j] < 64 && p[i * nCols + j + 1] < 64) {
 					resInfo.bluecount++;
-				}
+				}*/
                 if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
                     p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
                 } else {
@@ -127,7 +127,7 @@ void UniRobot::imageProcess()
                 }
             }
         }
-
+		/*
 		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
 			resInfo.blueline++;
 		}
@@ -135,7 +135,7 @@ void UniRobot::imageProcess()
 		resInfo.bluelastlast = resInfo.bluelast;
 		resInfo.bluelast = resInfo.bluecount > 320;
 		resInfo.bluecount = 0;
-
+		*/
 		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		morphologyEx(binMat, binMat, MORPH_CLOSE, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		/*****************************************************************************************
@@ -448,10 +448,10 @@ void UniRobot::run()
         mMotors[19]->setPosition(headPosition);
       }
       else if(mode == MODE_LINE) //mode line
-      {
+      {/*
 		  if (resInfo.blueline > 1) {
 			  resInfo.stepcount++;
-		  }
+		  }*/
         //walk control
 		  if (resInfo.stepcount < 300) {
 			  //cout << resInfo.stepcount << endl;
