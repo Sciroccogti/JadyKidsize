@@ -9,6 +9,7 @@
 #include <RobotisOp2MotionManager.hpp>
 #include <RobotisOp2GaitManager.hpp>
 #include <RobotisOp2VisionManager.hpp>
+#include <BallTracker.h>  // TODO: delete this line
 
 #include <cassert>
 #include <cstdlib>
@@ -47,7 +48,7 @@ void UniRobot::imageProcess()
 		//Mat binMat = rgbMat.clone();
 
 		RobotisOp2VisionManager Vision(320, 240, 120, 15, 100, 10, 50, 100);
-		//double ballx = -1, bally = -1;
+		double ballx = -1, bally = -1;
 		
 		//BallTracker tracker;
 
@@ -100,7 +101,7 @@ void UniRobot::imageProcess()
 
 		for (i = 0; i  <Rows; i++) {
 			for (j = 0; j < Cols; j += 3) {
-				if ((p[i * Cols + j] < 250 && p[i * Cols + j + 1] < 250 && p[i * Cols + j + 2] < 250)/*|| i > 60*/ ) {  // TODO: modify diametres
+				if ((p[i * Cols + j] < 250 && p[i * Cols + j + 1] < 250 && p[i * Cols + j + 2] < 250)|| i > 60 ) {  // TODO: modify diametres
 					p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 0;
 				}
 				else {
@@ -135,7 +136,7 @@ void UniRobot::imageProcess()
 		{
 			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 			int radius = cvRound(circles[i][2]);
-			//cout << radius <<"\t";
+			cout << radius <<"\t";
 
 			// circle center
 			circle(src_rgb, center, 3, Scalar(0, 255, 0), -1, 8, 0);
@@ -151,7 +152,7 @@ void UniRobot::imageProcess()
 
         //update the resInfo
 
-		if (circles.size() == 1 && circles[0][2] > 1 && circles[0][1] > 1) {
+		if (circles.size() == 1) {
 			resInfo.ball_x = cvRound(circles[0][0]);
 			resInfo.ball_y = cvRound(circles[0][1]);
 			resInfo.direction = -(circles[0][0] - 158.0) / 500.0;
@@ -350,9 +351,9 @@ void UniRobot::run()
       {
 		  if (resInfo.ball_found)
 		  {
-			  cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.235 - (resInfo.ball_y - 50) / 800.0 << endl;
+			  cout << "Found!" << endl;
 			  resInfo.stepcount = resInfo.stepcount * 11 / 12;
-			  if (resInfo.ball_y >= 203)
+			  if (resInfo.ball_y > 200)
 			  {
 				  cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
 				  mGaitManager->stop();
@@ -373,8 +374,6 @@ void UniRobot::run()
 				  mGaitManager->setXAmplitude(1.0);
 			  //}
 			  
-				  headPosition = clamp(0.18 - (resInfo.ball_y - 50) / 1000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-			  /*
 			  if (resInfo.ball_y < 100 && resInfo .ball_y > 50) {
 				  headPosition = clamp(0.2, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 			  }
@@ -384,7 +383,7 @@ void UniRobot::run()
 			  else {
 				  headPosition = clamp(0.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 			  }
-			  */
+			  
 			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
 			  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
 
@@ -392,12 +391,12 @@ void UniRobot::run()
 		  }
 		  else {
 				resInfo.stepcount++;
-				//cout << resInfo.stepcount<<"\t"<< 400.0 / resInfo.stepcount << endl;
+				cout << resInfo.stepcount<<"\t"<< 400.0 / resInfo.stepcount << endl;
 				mGaitManager->setXAmplitude(1.0);
 				mGaitManager->setYAmplitude(0.0);
 				mGaitManager->setAAmplitude(400.0 / resInfo.stepcount);
 
-				headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				headPosition = clamp(0.4, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 		  }
 		
 		mGaitManager->step(mTimeStep);
