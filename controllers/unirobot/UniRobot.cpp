@@ -144,7 +144,7 @@ void UniRobot::imageProcess()
 		}
 		//cout << resInfo.direction <<  endl;
 
-		showImage(src_rgb.data);
+		//showImage(src_rgb.data);
 		//waitKey(0);
 
 		/****************************/
@@ -268,7 +268,7 @@ void UniRobot::imageProcess()
 		
 		/*******************************************************************************************************/
 
-		showImage(binMat.data);
+		//showImage(binMat.data);
 		binMat.release();
 		//dstMat.release();
         //update the resInfo
@@ -350,11 +350,11 @@ void UniRobot::run()
       {
 		  if (resInfo.ball_found)
 		  {
-			  cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.235 - (resInfo.ball_y - 50) / 800.0 << endl;
+			  //cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.235 - (resInfo.ball_y - 50) / 800.0 << endl;
 			  resInfo.stepcount = resInfo.stepcount * 11 / 12;
 			  if (resInfo.ball_y >= 203)
 			  {
-				  cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
+				  //cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
 				  mGaitManager->stop();
 				  wait(500);
 				  //mGaitManager->setMoveAimOn(1);
