@@ -259,7 +259,7 @@ void UniRobot::imageProcess()
 		Mat transform = getPerspectiveTransform(corners, corners_dst);
 		warpPerspective(binMat, binMat, transform, binMat.size(), INTER_LINEAR, BORDER_CONSTANT);
 
-		/*******************************************************************************************************
+		//*******************************************************************************************************
 
 		// CannyThreshold
 		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
@@ -356,6 +356,10 @@ void UniRobot::imageProcess()
 		int ic1=9,ic2=10;
 		int jr1=13,jr2=14;
 		int jc1=1,jc2=10;
+		int c1=1,c2=2;
+		int r11=1,r12=2;
+		int r21=1,r22=3;
+		int r31=1,r32=4;
 		
 		if (binMat.at<uchar>(cr1*nRows / cr2, cc1*nCols / cc2 / 3))//C白
 		{
@@ -473,7 +477,7 @@ void UniRobot::imageProcess()
 		    indicator.x = ic1 *nCols / ic2 / 3;
 		    indicator.y = ir1 *nRows / ir2;
 		    cv::circle(binMat, indicator, 3, cv::Scalar(0, 255, 0));
-		    resInfo.direction=1;
+		    resInfo.direction=0.6;
 		}
 		else if(!binMat.at<uchar>(jr1*nRows / jr2,jc1*nCols / jc2 / 3)&&binMat.at<uchar>(ir1*nRows / ir2,ic1*nCols / ic2 / 3))
 		{
@@ -483,7 +487,11 @@ void UniRobot::imageProcess()
 		    indicator.x = ic1 *nCols / ic2 / 3;
 		    indicator.y = ir1 *nRows / ir2;
 		    cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
-		    resInfo.direction=-1;
+		    resInfo.direction=-0.6;
+		}
+		if (binMat.at<uchar>(c1*nRows/c2,r11*nCols/r12/3)||binMat.at<uchar>(c1*nRows/c2,r21*nCols/r22/3)||binMat.at<uchar>(c1*nRows/c2,r31*nCols/r32/3))
+		{
+		    resInfo.direction = (nCols / 6 - mid[11 * nRows / 12].x) / 190.0;
 		}
 		showImage(binMat.data);
 		binMat.release();
