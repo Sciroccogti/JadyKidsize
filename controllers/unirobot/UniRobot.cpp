@@ -35,36 +35,40 @@ static double minMotorPositions[NMOTORS];
 static double maxMotorPositions[NMOTORS];
 
 void UniRobot::DoorFinder() {
-	unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
 	Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
 	int Rows = rgbMat.rows;
 	int Cols = rgbMat.cols * 3;
-	uchar * p = rgbMat.ptr();
+	Mat binMat = rgbMat.clone();
+	uchar * p = binMat.ptr();
+	int left = Cols, right = 0, mid;
 
-	for (size_t i = 0; i < Rows; i++) {
-		for (size_t j = 0; j < Cols; j += 3) {
-			if ((p[i * Cols + j] < 250 && p[i * Cols + j + 1] < 250 && p[i * Cols + j + 2] < 250)|| i > 60) {  // TODO: modify diametres
-				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 0;
+	for (size_t j = 0; j < Cols; j += 3) {
+		for (size_t i = 0; i < 60; i ++) {
+			if ((p[i * Cols + j] > 250 && p[i * Cols + j + 1] > 250 && p[i * Cols + j + 2] > 250)) {  // TODO: modify diametres
+				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 255;
+				if (left > j) left = j / 3;
+				right = j / 3 + 1;
 			}
 			else {
-				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 255;
+				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 0;
 			}
 		}
 	}//提取上部图像
 
-	Mat edge, dstMat;
-
-	blur(rgbMat, edge, Size(3, 3));
-	Canny(edge, edge, 30, 90, 3);
-	dstMat = Scalar::all(0);
-	rgbMat.copyTo(dstMat, edge);
-
-	showImage(rgbMat.data);
+	line(binMat, Point(left, 0), Point(left, Rows), Scalar(0, 255, 0));
+	line(binMat, Point(right, 0), Point(right, Rows), Scalar(0, 255, 0));
+	if (left > 0) {
+		resInfo.door = (left + right) / 2;
+	}
+	cout << left << "\t" << right << endl;
+	showImage(binMat.data);
+	rgbMat.release();
+	binMat.release();
 }
 
 void UniRobot::imageProcess()
 {
-    unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
+    //unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
     Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
     //240*320, CV_8UC3
     if (mode == MODE_BALL) {
@@ -230,7 +234,7 @@ void UniRobot::imageProcess()
         //update the resInfo
     }
     rgbMat.release();
-    delete[] rgb;
+    //delete[] rgb;
 }
 
 // function containing the main feedback loop
@@ -305,24 +309,30 @@ void UniRobot::run()
       if(mode == MODE_BALL) // mode ball 
       {
 		  resInfo.door = -1;
-
+		  
 		  if (resInfo.ball_found)
 		  {
 			  cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.18 - (resInfo.ball_y - 50) / 800.0 << endl;
 			  resInfo.stepcount = resInfo.stepcount * 11 / 12;
 			  if (resInfo.ball_y >= 160) // if the ball is close enough
 			  {
-				  headPosition = clamp(1.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				  mGaitManager->stop();
+				  wait(500);
+				  headPosition = clamp(0.8, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				  mMotors[19]->setPosition(headPosition);
 				  /*
 				  do {
-					  DoorFinder();
+					  // DoorFinder();
 					  mGaitManager->setMoveAimOn(1);
-				  } while (resInfo.door >= 160 || resInfo.door <= 0);
+					  mGaitManager->setXAmplitude(1.0);
+					  mGaitManager->setYAmplitude(0.0);
+					  mGaitManager->setAAmplitude(400.0 / resInfo.stepcount);
+				  } while (resInfo.door >= 160 || resInfo.door <= 0);*/
 					//cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
-					mGaitManager->stop();
+					//mGaitManager->stop();
 					wait(500);
 					DoorFinder();
-					*/
+
 					if (resInfo.door < 160)
 						mMotionManager->playPage(13); // left kick
 					else
@@ -330,29 +340,13 @@ void UniRobot::run()
 					mMotionManager->playPage(9); // walkready position
 					mGaitManager->start();
 			  }
-			  /*
-			  if (abs(resInfo.direction) < 0.05 && abs(resInfo.direction) > 0.00001 && resInfo.ball_y < 201) {
-				  mGaitManager->setXAmplitude(0.85); //x -1.0 ~ 1.0
-			  }
-			  else {*/
 				  mGaitManager->setXAmplitude(1.0);
-			  //}
 			  
 				  headPosition = clamp(0.18 - (resInfo.ball_y - 50) / 1000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-			  /*
-			  if (resInfo.ball_y < 100 && resInfo .ball_y > 50) {
-				  headPosition = clamp(0.2, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-			  }
-			  else if(resInfo.ball_y > 200){
-				  headPosition = clamp(0.1, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-			  }
-			  else {
-				  headPosition = clamp(0.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-			  }
-			  */
+
 			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
 			  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
-
+			  
 			  //headPosition = clamp(resInfo.stepcount / 5000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 		  }
 		  else {
@@ -361,7 +355,7 @@ void UniRobot::run()
 				mGaitManager->setXAmplitude(1.0);
 				mGaitManager->setYAmplitude(0.0);
 				mGaitManager->setAAmplitude(400.0 / resInfo.stepcount);
-
+				mGaitManager->setMoveAimOn(0);
 				headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 		  }
 		
