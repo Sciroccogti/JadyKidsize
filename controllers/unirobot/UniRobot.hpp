@@ -40,6 +40,7 @@ class UniRobot : public webots::Robot {
     void                             wait(int ms);
     void                             showImage(const unsigned char *rgb);
     void                             imageProcess();
+	void								DoorFinder();
     unsigned char*                   getRGBImage();
     cv::Mat                          getRGBMat(); 
 
@@ -55,6 +56,9 @@ class UniRobot : public webots::Robot {
       bool ball_found;
       double ball_x, ball_y;
 	  double direction;  // -1 is right, 1 is left
+
+	  double door;
+
 	  int blueline = 0;
 	  int stepcount = 0;
 	  int bluecount = 0;

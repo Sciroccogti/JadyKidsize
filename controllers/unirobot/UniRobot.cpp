@@ -34,101 +34,60 @@ static double clamp(double value, double min, double max)
 static double minMotorPositions[NMOTORS];
 static double maxMotorPositions[NMOTORS];
 
+void UniRobot::DoorFinder() {
+	unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
+	Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
+	int Rows = rgbMat.rows;
+	int Cols = rgbMat.cols * 3;
+	uchar * p = rgbMat.ptr();
+
+	for (size_t i = 0; i < Rows; i++) {
+		for (size_t j = 0; j < Cols; j += 3) {
+			if ((p[i * Cols + j] < 250 && p[i * Cols + j + 1] < 250 && p[i * Cols + j + 2] < 250)|| i > 60) {  // TODO: modify diametres
+				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 0;
+			}
+			else {
+				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 255;
+			}
+		}
+	}//提取上部图像
+
+	Mat edge, dstMat;
+
+	blur(rgbMat, edge, Size(3, 3));
+	Canny(edge, edge, 30, 90, 3);
+	dstMat = Scalar::all(0);
+	rgbMat.copyTo(dstMat, edge);
+
+	showImage(rgbMat.data);
+}
+
 void UniRobot::imageProcess()
 {
     unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
     Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
     //240*320, CV_8UC3
-
     if (mode == MODE_BALL) {
-        //TODO Write down your code
+        //TODO Write down your code		
 
-
-		//Mat binMat = rgbMat.clone();
-
-		RobotisOp2VisionManager Vision(320, 240, 120, 15, 100, 10, 50, 100);
-		//double ballx = -1, bally = -1;
-		
-		//BallTracker tracker;
-
-	
-		//showImage(binMat.data);
-		//binMat.release();
-
-		/*Mat greyMat;
-		int i, j, k;
-		int nRows = rgbMat.rows;
-		int nCols = rgbMat.cols * 3;
-		uchar  *p = greyMat.ptr();
-		uchar  *q = rgbMat.ptr();
-		
-		for (i = 0; i < nRows; i++) {
-			for (j = 0; j < nCols; j += 3) {
-				// TODO: modify diametres
-				//p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = q[i * nCols + j]*0.299+q[i * nCols + j + 1]*0.587+ q[i * nCols + j + 1]*0.114;
-				//cout << q[i * nCols + j] * 0.299<<"ttt";//p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2]=100;
-
-			}
-		}*/
-
-		/*************************/
-		/*Mat binMat = rgbMat.clone();
-		uchar  *p = binMat.ptr();
-		int i, j, k;
-		int nRows = rgbMat.rows;
-		int nCols = rgbMat.cols * 3;
-
-		for (i = 0; i < nRows; i++) {
-			for (j = 0; j < nCols; j += 3) {
-				if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
-					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
-				}
-				else {
-					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
-				}
-			}
-		}*/
-		/*************************/
-
-		/****************************/
-		Mat binMat = rgbMat.clone();
-		//morphologyEx(rgbMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(6, 6), Point(0, 0)));//开闭
-		uchar  *p = binMat.ptr();
-		int i, j;
-		int Rows = rgbMat.rows;
-		int Cols = rgbMat.cols * 3;
-
-		for (i = 0; i  <Rows; i++) {
-			for (j = 0; j < Cols; j += 3) {
-				if ((p[i * Cols + j] < 250 && p[i * Cols + j + 1] < 250 && p[i * Cols + j + 2] < 250)/*|| i > 60*/ ) {  // TODO: modify diametres
-					p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 0;
-				}
-				else {
-					p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 255;
-				}
-			}
-		}//二值化
-		
 		//霍夫圆变换
 		Mat src_gray, src_rgb, edge, dstMat(rgbMat.size(), rgbMat.type());
-		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);
+		//cvtColor(rgbMat, src_gray, CV_BGR2GRAY);
 		//GaussianBlur(src_gray, src_gray, Size(9, 9), 2, 2);
-
 		
 		// CannyThreshold
-		//cvtColor(binMat, binGray, CV_RGB2GRAY);  // try BGR
+		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);  // try BGR
 		blur(src_gray, edge, Size(3, 3));
 		Canny(edge, edge, 30, 90, 3);
 		dstMat = Scalar::all(0);
 		src_gray.copyTo(dstMat, edge);
-		
 
 		vector<Vec3f> circles;
-		HoughCircles(edge, circles, CV_HOUGH_GRADIENT, 1, edge.rows / 3, 100, 35, 2, 58);
+		HoughCircles(dstMat, circles, CV_HOUGH_GRADIENT, 1, dstMat.rows / 3, 100, 35, 2, 58);
 		
 		cvtColor(edge, src_rgb, CV_GRAY2RGB);
 		//cout << circles.size() << endl;
-		int nCols = edge .cols;
+		int nCols = src_rgb .cols;
 		//cout << nCols << endl;
 		resInfo.direction = 0.0;
 		for (size_t i = 0; i < circles.size(); i++)
@@ -143,14 +102,14 @@ void UniRobot::imageProcess()
 			circle(src_rgb, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 		}
 		//cout << resInfo.direction <<  endl;
-
-		//showImage(src_rgb.data);
+		
+		showImage(src_rgb.data);
 		//waitKey(0);
 
 		/****************************/
 
         //update the resInfo
-
+		
 		if (circles.size() == 1 && circles[0][2] > 1 && circles[0][1] > 1) {
 			resInfo.ball_x = cvRound(circles[0][0]);
 			resInfo.ball_y = cvRound(circles[0][1]);
@@ -162,10 +121,7 @@ void UniRobot::imageProcess()
 			resInfo.ball_y = -1;
 			resInfo.ball_found = false;
 		}
-
-		//resInfo.ball_x = ballx;
-		//resInfo.ball_y = bally;
-		binMat.release();
+		
 		src_rgb.release();
 		src_gray.release();
 		circles.clear();
@@ -268,7 +224,7 @@ void UniRobot::imageProcess()
 		
 		/*******************************************************************************************************/
 
-		//showImage(binMat.data);
+		showImage(binMat.data);
 		binMat.release();
 		//dstMat.release();
         //update the resInfo
@@ -348,22 +304,31 @@ void UniRobot::run()
       //kick ball
       if(mode == MODE_BALL) // mode ball 
       {
+		  resInfo.door = -1;
+
 		  if (resInfo.ball_found)
 		  {
-			  //cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.235 - (resInfo.ball_y - 50) / 800.0 << endl;
+			  cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.18 - (resInfo.ball_y - 50) / 800.0 << endl;
 			  resInfo.stepcount = resInfo.stepcount * 11 / 12;
-			  if (resInfo.ball_y >= 203)
+			  if (resInfo.ball_y >= 160) // if the ball is close enough
 			  {
-				  //cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
-				  mGaitManager->stop();
-				  wait(500);
-				  //mGaitManager->setMoveAimOn(1);
-				  if (resInfo.ball_x < 160)
-					  mMotionManager->playPage(13); // left kick
-				  else
-					  mMotionManager->playPage(12); // right kick
-				  mMotionManager->playPage(9); // walkready position
-				  mGaitManager->start();
+				  headPosition = clamp(1.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				  /*
+				  do {
+					  DoorFinder();
+					  mGaitManager->setMoveAimOn(1);
+				  } while (resInfo.door >= 160 || resInfo.door <= 0);
+					//cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
+					mGaitManager->stop();
+					wait(500);
+					DoorFinder();
+					*/
+					if (resInfo.door < 160)
+						mMotionManager->playPage(13); // left kick
+					else
+						mMotionManager->playPage(12); // right kick
+					mMotionManager->playPage(9); // walkready position
+					mGaitManager->start();
 			  }
 			  /*
 			  if (abs(resInfo.direction) < 0.05 && abs(resInfo.direction) > 0.00001 && resInfo.ball_y < 201) {
