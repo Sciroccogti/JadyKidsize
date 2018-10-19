@@ -60,7 +60,7 @@ class UniRobot : public webots::Robot {
 	  double door;
 
 	  int blueline = 0;
-	  int stepcount = 0;
+	  double stepcount = 0;
 	  int bluecount = 0;
 	  bool bluelast = false;
 	  bool bluelastlast = false;
