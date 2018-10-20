@@ -9,7 +9,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.012810529994509368 -0.7152904254670577 -0.6987098808206561 3.0841890345402843
-  position -0.37763967033989676 7.967855372787075 -0.4105029440310488
+  position -0.3931184661340789 8.636111142337473 -0.425724476352664
   follow "ROBOTIS OP2"
 }
 Background {
@@ -19,13 +19,15 @@ Background {
 }
 DirectionalLight {
   ambientIntensity 1
-  direction -0.5 -2 -0.5
+  color 0.7999999999999999 0.8 0.8
+  direction -0.4 -1.9 -0.4
   intensity 0.7
   castShadows TRUE
 }
 DirectionalLight {
   ambientIntensity 1
-  direction 0.5 -0.5 0.5
+  color 0.9 0.9 0.9
+  direction 0.6 -0.6 0.6
   intensity 0.7
 }
 Field {

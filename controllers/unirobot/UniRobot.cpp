@@ -46,7 +46,7 @@ void UniRobot::DoorFinder() {
 		for (size_t i = 0; i < 60; i ++) {
 			if ((p[i * Cols + j] > 250 && p[i * Cols + j + 1] > 250 && p[i * Cols + j + 2] > 250)) {  // TODO: modify diametres
 				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 255;
-				if (left > j) left = j / 3;
+				if (left > j ) left = j / 3;
 				right = j / 3 + 1;
 			}
 			else {
@@ -57,10 +57,10 @@ void UniRobot::DoorFinder() {
 
 	line(binMat, Point(left, 0), Point(left, Rows), Scalar(0, 255, 0));
 	line(binMat, Point(right, 0), Point(right, Rows), Scalar(0, 255, 0));
-	if (left > 0 && left < right) {
+	if (left >= 0 && left < right) {
 		resInfo.door = (left + right) / 2;
 	}
-	cout << resInfo.door << endl;
+	cout <<  resInfo.door << endl;
 	showImage(binMat.data);
 	rgbMat.release();
 	binMat.release();
@@ -73,7 +73,7 @@ void UniRobot::imageProcess()
     //240*320, CV_8UC3
     if (mode == MODE_BALL) {
         //TODO Write down your code		
-
+		 
 		//霍夫圆变换
 		Mat src_gray, src_rgb, edge, dstMat(rgbMat.size(), rgbMat.type());
 		//cvtColor(rgbMat, src_gray, CV_BGR2GRAY);
@@ -87,7 +87,7 @@ void UniRobot::imageProcess()
 		src_gray.copyTo(dstMat, edge);
 
 		vector<Vec3f> circles;
-		HoughCircles(dstMat, circles, CV_HOUGH_GRADIENT, 1, dstMat.rows / 3, 100, 35, 2, 58);
+		HoughCircles(dstMat, circles, CV_HOUGH_GRADIENT, 1, dstMat.rows / 3, 100, 30, 2, 58);
 		
 		cvtColor(edge, src_rgb, CV_GRAY2RGB);
 		//cout << circles.size() << endl;
@@ -108,6 +108,7 @@ void UniRobot::imageProcess()
 		//cout << resInfo.direction <<  endl;
 		
 		showImage(src_rgb.data);
+		//cout << src_rgb.cols << "\t" << src_rgb.rows << endl;
 		//waitKey(0);
 
 		/****************************/
@@ -309,16 +310,33 @@ void UniRobot::run()
       if(mode == MODE_BALL) // mode ball 
       {
 		  resInfo.door = -1;
-		  
+		  cout << resInfo.head << endl;
+		  cout << resInfo.ball_y << endl;
+		  cout << 0.18 - (resInfo.ball_y - 50) / 1000.0 << endl;
+		  if (resInfo.head < 0.001) { resInfo.head = 0.50; }
 		  if (resInfo.ball_found)
 		  {
 			  mEyeLED->set(0x0000FF);
+			  if (resInfo.ball_y < 40) 
+			  {
+				  resInfo.head = 0.45;
+			  }
+			  else if (resInfo.ball_y > 180)
+			  {
+				  resInfo.head = 0.15;
+			  }
+			  else 
+			  {
+				  resInfo.head = 0.30;
+			  }
 			  //cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.18 - (resInfo.ball_y - 50) / 800.0 << endl;
 			  resInfo.stepcount = resInfo.stepcount * 24.0 / 25.0;
-			  if (resInfo.ball_y >= 205 && 0.18 - (resInfo.ball_y - 50) / 1000.0 < 0.03) // if the ball is close enough
+			  if (resInfo.ball_y >= 210 && 0.18 - (resInfo.ball_y - 50) / 1000.0 < 0.01) // if the ball is close enough
 			  {
+				  mGaitManager->setXAmplitude(0.8);
+				  mGaitManager->step(mTimeStep);
 				  mGaitManager->stop();
-				  wait(500);
+				  //wait(500);
 				  headPosition = clamp(0.8, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 				  mMotors[19]->setPosition(headPosition);
 				  /*
@@ -349,7 +367,6 @@ void UniRobot::run()
 						neckPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]);
 						mMotors[18]->setPosition(neckPosition);
 						wait(500);
-
 						if (resInfo.door < 0) {
 							neckPosition = clamp(-1, minMotorPositions[19], maxMotorPositions[19]);// watch right
 							mMotors[18]->setPosition(neckPosition);
@@ -391,23 +408,27 @@ void UniRobot::run()
 					}
 					mMotionManager->playPage(9); // walkready position
 					mGaitManager->start();
+					cout << "kick";
+					resInfo.head = 0.40;
 			  }
 				  mGaitManager->setXAmplitude(1.0);
-				  headPosition = clamp(0.18 - (resInfo.ball_y - 50) / 1000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				  headPosition = clamp(resInfo.head, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
 			  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
-			  
+			  //resInfo.head = 0.40;
 			  //headPosition = clamp(resInfo.stepcount / 5000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 		  }
 		  else {
 				mEyeLED->set(0x00FF00);
 				resInfo.stepcount++;
 				//cout << resInfo.stepcount<<"\t"<< 400.0 / resInfo.stepcount << endl;
-				mGaitManager->setXAmplitude(1.0);
+				mGaitManager->setXAmplitude(0.0);
 				mGaitManager->setYAmplitude(0.0);
-				mGaitManager->setAAmplitude(400.0 / resInfo.stepcount);
+				//mGaitManager->setAAmplitude(400.0 / resInfo.stepcount);
+				mGaitManager->setAAmplitude(1.0);
 				mGaitManager->setMoveAimOn(0);
-				headPosition = clamp(0.35, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				headPosition = clamp(resInfo.head, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				resInfo.head -= 0.01/40.0;
 		  }
 		
 		mGaitManager->step(mTimeStep);
