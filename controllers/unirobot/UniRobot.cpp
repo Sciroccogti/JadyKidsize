@@ -46,7 +46,7 @@ void UniRobot::DoorFinder() {
 
 	for (size_t j = 0; j < Cols; j += 3) {
 		for (size_t i = 0; i < 60; i ++) {
-			if ((p[i * Cols + j] > 250 && p[i * Cols + j + 1] > 250 && p[i * Cols + j + 2] > 250)) {  // TODO: modify diametres
+			if ((p[i * Cols + j] > 250 && p[i * Cols + j + 1] > 250 && p[i * Cols + j + 2] > 250)) {
 				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 255;
 				if (left > j ) left = j / 3;
 				right = j / 3 + 1;
@@ -55,15 +55,15 @@ void UniRobot::DoorFinder() {
 				p[i * Cols + j] = p[i * Cols + j + 1] = p[i * Cols + j + 2] = 0;
 			}
 		}
-	}//提取上部图像
+	} // cut out the top of picture
 
 	line(binMat, Point(left, 0), Point(left, Rows), Scalar(0, 255, 0));
 	line(binMat, Point(right, 0), Point(right, Rows), Scalar(0, 255, 0));
 	if (left >= 0 && left < right) {
 		resInfo.door = (left + right) / 2;
 	}
-	cout <<  resInfo.door << endl;
-	showImage(binMat.data);
+
+	//showImage(binMat.data);
 	rgbMat.release();
 	binMat.release();
 }
@@ -73,32 +73,13 @@ void UniRobot::imageProcess()
     //unsigned char* rgb = getRGBImage(); //get raw data, format: RGB
     Mat rgbMat = getRGBMat(); //get rgb data to cv::Mat
     //240*320, CV_8UC3
+
     if (mode == MODE_BALL) {
         //TODO Write down your code		
-		/*int nRows = rgbMat.rows;
-		int nCols = rgbMat.cols * 3;
-
-		Mat binMat = rgbMat.clone();
-		uchar  *p = binMat.ptr();
-
-		for (size_t i = 0; i < nRows; i++) {
-			for (size_t j = 0; j < nCols; j += 3) {
-				if (p[i * nCols + j] < 140 && p[i * nCols + j + 1] < 140 && p[i * nCols + j + 2] < 140) {  // TODO: modify diametres
-					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
-				}
-				else {
-					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
-				}
-			}
-		}*/
-
 		Mat src_gray, src_rgb, edge, dstMat(rgbMat.size(), rgbMat.type());
-		//cvtColor(rgbMat, src_gray, CV_BGR2GRAY);
-		//GaussianBlur(src_gray, src_gray, Size(9, 9), 2, 2);
 		
 		// CannyThreshold
 		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);  // try BGR
-		//morphologyEx(src_gray, src_gray, MORPH_OPEN, getStructuringElement(0, Size(8, 8), Point(0, 0)));
 		blur(src_gray, edge, Size(3, 3));
 		Canny(edge, edge, 30, 90, 3);
 		dstMat = Scalar::all(0);
@@ -109,29 +90,21 @@ void UniRobot::imageProcess()
 		HoughCircles(dstMat, circles, CV_HOUGH_GRADIENT, 1, dstMat.rows / 3, 100, 30, 2, 58);
 		
 		cvtColor(edge, src_rgb, CV_GRAY2RGB);
-		//cout << circles.size() << endl;
-		//int nCols = src_rgb .cols;
-		//cout << nCols << endl;
+
 		resInfo.direction = 0.0;
+
 		for (size_t i = 0; i < circles.size(); i++)
 		{
 			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 			int radius = cvRound(circles[i][2]);
-			//cout << radius <<"\t";
-
 			// circle center
 			circle(src_rgb, center, 3, Scalar(0, 255, 0), -1, 8, 0);
 			// circle outline
 			circle(src_rgb, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 		}
-		//cout << resInfo.direction <<  endl;
 		
-		showImage(src_rgb.data);
-		//cout << src_rgb.cols << "\t" << src_rgb.rows << endl;
-		//waitKey(0);
-
-		/****************************/
-
+		//showImage(src_rgb.data);
+		
         //update the 0resInfo
 		
 		if (circles.size() == 1 && circles[0][2] > 1) {
@@ -148,6 +121,8 @@ void UniRobot::imageProcess()
 		
 		src_rgb.release();
 		src_gray.release();
+		dstMat.release();
+		edge.release();
 		circles.clear();
     } else if (mode == MODE_LINE) {
 		//TODO Write down your code
@@ -183,34 +158,6 @@ void UniRobot::imageProcess()
 		*/
 		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		morphologyEx(binMat, binMat, MORPH_CLOSE, getStructuringElement(0, Size(10, 10), Point(0, 0)));
-		/*****************************************************************************************
-		// rectify the tilted pic
-		// assuming that the angle betwenn the middle of the vision and the plumb line is 60°
-		//Mat dstMat = dstMat.clone();
-		int nrows = rgbMat.rows;
-		int ncols = rgbMat.cols;
-		float ratio = cos(60 - 23) / cos(60 + 23);
-		vector<Point2f> corners(4);
-		corners[0] = Point2f(0, 0);
-		corners[1] = Point2f(ncols-1, 0);
-		corners[2] = Point2f(ncols * (1 - ratio) / 2, nrows-1);
-		corners[3] = Point2f(ncols * (1 + ratio) / 2, nrows-1);
-		vector<Point2f> corners_dst(4);
-		corners_dst[0] = Point2f(0, 0);
-		corners_dst[1] = Point2f(ncols-1, 0);
-		corners_dst[2] = Point2f(0, nrows-1);
-		corners_dst[3] = Point2f(ncols-1, nrows - 1);
-		Mat transform = getPerspectiveTransform(corners, corners_dst);
-		warpPerspective(binMat, binMat, transform, binMat.size(), INTER_LINEAR, BORDER_CONSTANT);
-		/*******************************************************************************************************
-		// CannyThreshold
-		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
-		cvtColor(binMat, binGray, CV_RGB2GRAY);  // try BGR
-		blur(binGray, edge, Size(3, 3));
-		Canny(edge, edge, 30, 90, 3);
-		dstMat = Scalar::all(0);
-		binMat.copyTo(dstMat, edge);
-		*******************************************************************************************************/
 
 		// get the mid line
 		bool leftfound, rightfound;  // black is false, white is true
@@ -219,7 +166,7 @@ void UniRobot::imageProcess()
 
 		for (i = 0; i < nRows; i++) {
 			leftfound = rightfound = false;
-			lastwhite = cv::Point(-1, -1);  // TODO: ??
+			lastwhite = cv::Point(-1, -1);
 
 			for (j = 0; j < nCols; j += 3) {
 				if (!leftfound) {
@@ -281,7 +228,7 @@ void UniRobot::imageProcess()
 
 		/*******************************************************************************************************/
 
-		showImage(binMat.data);
+		//showImage(binMat.data);
 		binMat.release();
 		//update the resInfo
     }
@@ -356,8 +303,7 @@ void UniRobot::run()
     {
       imageProcess();
       //TODO control the robot according to the resInfo you updated in imageProcess
-      //demo
-      //kick ball
+
       if(mode == MODE_BALL) // mode ball 
       {
 		  if (began < 200) 
@@ -370,9 +316,6 @@ void UniRobot::run()
 		  }
 		  else {
 			  resInfo.door = -1;
-			  //cout << resInfo.head << endl;
-			  //cout << resInfo.ball_y << endl;
-			  //cout << 0.18 - (resInfo.ball_y - 50) / 1000.0 << endl;
 			  if (resInfo.head < 0.001) { resInfo.head = 0.50; }
 			  if (resInfo.ball_found)
 			  {
@@ -393,31 +336,17 @@ void UniRobot::run()
 				  {
 					  resInfo.head = 0.15;
 				  }
-				  //cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.18 - (resInfo.ball_y - 50) / 800.0 << endl;
+
 				  resInfo.stepcount = resInfo.stepcount * 24.0 / 25.0;
 				  if (resInfo.ball_y >= 215) // if the ball is close enough
 				  {
 					  mGaitManager->setXAmplitude(0.5);
 					  mGaitManager->stop();
-					  //wait(500);
+
 					  headPosition = clamp(0.8, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 					  mMotors[19]->setPosition(headPosition);
 					  wait(500);
-					  /*
-					  mGaitManager->start();
-					  do {
-						  DoorFinder();
-						  mGaitManager->setMoveAimOn(1);
-						  mGaitManager->setXAmplitude(1.0);
-						  mGaitManager->setYAmplitude(0.0);
-						  mGaitManager->setAAmplitude(1.0);
-						  mGaitManager->step(mTimeStep);
-						  myStep();
-					  } while (resInfo.door >= 160 || resInfo.door <= 0);
-						//cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
-						mGaitManager->stop();
-						wait(500);*/
-
+					  
 					  int neck;
 					  cout << "mid:\t";
 					  DoorFinder();
@@ -479,13 +408,9 @@ void UniRobot::run()
 				  headPosition = clamp(resInfo.head, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 				  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
 				  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
-				  //resInfo.head = 0.40;
-				  //headPosition = clamp(resInfo.stepcount / 5000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
 			  }
 			  else {
 				  mEyeLED->set(0x00FF00);
-				  //resInfo.stepcount++;
-				  //cout << resInfo.stepcount<<"\t"<< 400.0 / resInfo.stepcount << endl;
 				  mGaitManager->setXAmplitude(0.0);
 				  mGaitManager->setYAmplitude(0.0);
 				  mGaitManager->setAAmplitude(1.0);
@@ -498,7 +423,6 @@ void UniRobot::run()
 		mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-		//headPosition = clamp(0.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[19]->setPosition(headPosition);
       }
       else if(mode == MODE_LINE) //mode line
