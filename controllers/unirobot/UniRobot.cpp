@@ -150,39 +150,42 @@ void UniRobot::imageProcess()
 		src_gray.release();
 		circles.clear();
     } else if (mode == MODE_LINE) {
-        //TODO Write down your code
-		
+		//TODO Write down your code
+
 		// Binarization
-        Mat binMat = rgbMat.clone();
-        uchar  *p = binMat.ptr(); 
-        int i, j;
-        int nRows = rgbMat.rows;
-        int nCols = rgbMat.cols * 3;
-        
-		for (i = 0; i < nRows; i ++) {
-            for (j = 0; j < nCols; j += 3) {/*
+		Mat binMat = rgbMat.clone();
+		uchar  *p = binMat.ptr();
+		int i, j;
+		int nRows = rgbMat.rows;
+		int nCols = rgbMat.cols * 3;
+
+		for (i = 0; i < nRows; i++) {
+			for (j = 0; j < nCols; j += 3) {/*
 				if (p[i * nCols + j + 2] > 240 && p[i * nCols + j] < 64 && p[i * nCols + j + 1] < 64) {
 					resInfo.bluecount++;
 				}*/
-                if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
-                    p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
-                } else {
-                    p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
-                }
-            }
-        }
+				if (p[i * nCols + j] < 200 && p[i * nCols + j + 1] < 200 && p[i * nCols + j + 2] < 200) {  // TODO: modify diametres
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
+				}
+				else {
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
+				}
+			}
+		}
 		/*
-		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 160) {
+		if (!resInfo.bluelast && resInfo.bluelastlast && resInfo.bluecount < 320) {
 			resInfo.blueline++;
 		}
-		cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
+		//cout << resInfo.bluecount << "\tlast:" << resInfo.bluelast << "\tline" << resInfo.blueline <<"\tstep"<< resInfo.stepcount<< endl;
 		resInfo.bluelastlast = resInfo.bluelast;
-		resInfo.bluelast = resInfo.bluecount > 160;
-		resInfo.bluecount = 0;*/
+		resInfo.bluelast = resInfo.bluecount > 320;
+		resInfo.bluecount = 0;
+		*/
+		morphologyEx(binMat, binMat, MORPH_OPEN, getStructuringElement(0, Size(10, 10), Point(0, 0)));
+		morphologyEx(binMat, binMat, MORPH_CLOSE, getStructuringElement(0, Size(10, 10), Point(0, 0)));
 		/*****************************************************************************************
-
 		// rectify the tilted pic
-        // assuming that the angle betwenn the middle of the vision and the plumb line is 60°
+		// assuming that the angle betwenn the middle of the vision and the plumb line is 60°
 		//Mat dstMat = dstMat.clone();
 		int nrows = rgbMat.rows;
 		int ncols = rgbMat.cols;
@@ -197,12 +200,9 @@ void UniRobot::imageProcess()
 		corners_dst[1] = Point2f(ncols-1, 0);
 		corners_dst[2] = Point2f(0, nrows-1);
 		corners_dst[3] = Point2f(ncols-1, nrows - 1);
-
 		Mat transform = getPerspectiveTransform(corners, corners_dst);
 		warpPerspective(binMat, binMat, transform, binMat.size(), INTER_LINEAR, BORDER_CONSTANT);
-
 		/*******************************************************************************************************
-
 		// CannyThreshold
 		Mat binGray, edge, dstMat(binMat.size(), binMat.type());
 		cvtColor(binMat, binGray, CV_RGB2GRAY);  // try BGR
@@ -210,48 +210,80 @@ void UniRobot::imageProcess()
 		Canny(edge, edge, 30, 90, 3);
 		dstMat = Scalar::all(0);
 		binMat.copyTo(dstMat, edge);
+		*******************************************************************************************************/
 
-		/*******************************************************************************************************/
+		// get the mid line
+		bool leftfound, rightfound;  // black is false, white is true
+		cv::Point lastwhite;
+		vector<cv::Point> left, right, mid;
 
-		// RoadDetection
-		cv::Point indicator;
+		for (i = 0; i < nRows; i++) {
+			leftfound = rightfound = false;
+			lastwhite = cv::Point(-1, -1);  // TODO: ??
 
-		if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6) && !binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // main detectors both touch black
-			if (!binMat.at<uchar>(nRows / 3, nCols / 3)) {  // assistant left detector
-				resInfo.direction = -0.3;
-				indicator.x = nCols / 9;
-				indicator.y = nRows / 3;
-				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+			for (j = 0; j < nCols; j += 3) {
+				if (!leftfound) {
+					if (binMat.at<uchar>(i, j)) {  // touch white
+						left.push_back(cv::Point(j / 3, i));
+						leftfound = true;
+					}
+				}
+
+				if (!rightfound) {
+					if (binMat.at<uchar>(i, j)) {  // touch white
+						lastwhite = cv::Point(j / 3, i);  // store the lastwhite
+					}
+
+					if (nCols - j <= 3) {  // reach the end of the row
+						if (binMat.at<uchar>(i, j)) {  // end with white
+							right.push_back(cv::Point(j / 3, i));
+							rightfound = true;
+						}
+						else if (lastwhite.x >= 0) {
+							right.push_back(lastwhite);
+							rightfound = true;
+						}
+					}
+				}
 			}
-			else if (!binMat.at<uchar>(nRows / 3, 2 * nCols / 3)) {  // assistant right detector
-				resInfo.direction = 0.3;
-				indicator.x = 2 * nCols / 9;
-				indicator.y = nRows / 3;
-				cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
+
+			if (!rightfound) {  // no white this row
+				right.push_back(cv::Point(nCols / 3, i));  // TODO: change the method of error handling
+			}
+			if (!leftfound) {  // no white this row
+				left.push_back(cv::Point(0, i));  // TODO: change the method of error handling
 			}
 		}
-		else if (!binMat.at<uchar>(2 * nRows / 3, nCols / 6)) {  // left detector touch balck
-			resInfo.direction = -0.8;
-			indicator.x = nCols / 18;
-			indicator.y = 2 * nRows / 3;
-			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
+
+		for (i = 0; i < right.size() && i < left.size(); i++) {
+			mid.push_back(cv::Point((right[i].x + left[i].x) / 2, (right[i].y + left[i].y) / 2));
 		}
-		else if (!binMat.at<uchar>(2 * nRows / 3, 5 * nCols / 6)) {  // right detector touch the balck
-			resInfo.direction = 0.8;
-			indicator.x = 5 * nCols / 18;
-			indicator.y = 2 * nRows / 3;
-			cv::circle(binMat, indicator, 5, cv::Scalar(255, 0, 0));
+
+		for (i = 0; i < left.size(); i++)
+		{
+			cv::circle(binMat, left[i], 1, cv::Scalar(0, 255, 0));
 		}
-		else {
-			resInfo.direction = 0;
+		for (i = 0; i < right.size(); i++)
+		{
+			cv::circle(binMat, right[i], 1, cv::Scalar(0, 255, 0));
 		}
-		
+		for (i = 0; i < mid.size(); i++)
+		{
+			cv::circle(binMat, mid[i], 1, cv::Scalar(0, 255, 0));
+		}
+
+		/*********************************************************************************************************/
+
+		resInfo.direction = ((nCols / 6 - mid[11 * nRows / 12].x) * 0.5 + (nCols / 6 - mid[1 * nRows / 2].x) * 0.3 + (nCols / 6 - mid[1 * nRows / 3].x) * 0.2) / 100.0;
+		cv::circle(binMat, mid[11 * nRows / 12], 3, cv::Scalar(255, 0, 0));
+		cv::circle(binMat, mid[1 * nRows / 2], 3, cv::Scalar(255, 0, 0));
+		cv::circle(binMat, mid[1 * nRows / 3], 3, cv::Scalar(255, 0, 0));
+
 		/*******************************************************************************************************/
 
 		showImage(binMat.data);
 		binMat.release();
-		//dstMat.release();
-        //update the resInfo
+		//update the resInfo
     }
     rgbMat.release();
     //delete[] rgb;
