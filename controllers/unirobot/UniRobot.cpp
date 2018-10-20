@@ -21,6 +21,8 @@ using namespace managers;
 using namespace std;
 using namespace cv;
 
+int began = 0;
+
 static double clamp(double value, double min, double max) 
 {
   if (min > max) 
@@ -73,25 +75,42 @@ void UniRobot::imageProcess()
     //240*320, CV_8UC3
     if (mode == MODE_BALL) {
         //TODO Write down your code		
-		 
-		//霍夫圆变换
+		/*int nRows = rgbMat.rows;
+		int nCols = rgbMat.cols * 3;
+
+		Mat binMat = rgbMat.clone();
+		uchar  *p = binMat.ptr();
+
+		for (size_t i = 0; i < nRows; i++) {
+			for (size_t j = 0; j < nCols; j += 3) {
+				if (p[i * nCols + j] < 140 && p[i * nCols + j + 1] < 140 && p[i * nCols + j + 2] < 140) {  // TODO: modify diametres
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 0;
+				}
+				else {
+					p[i * nCols + j] = p[i * nCols + j + 1] = p[i * nCols + j + 2] = 255;
+				}
+			}
+		}*/
+
 		Mat src_gray, src_rgb, edge, dstMat(rgbMat.size(), rgbMat.type());
 		//cvtColor(rgbMat, src_gray, CV_BGR2GRAY);
 		//GaussianBlur(src_gray, src_gray, Size(9, 9), 2, 2);
 		
 		// CannyThreshold
 		cvtColor(rgbMat, src_gray, CV_RGB2GRAY);  // try BGR
+		//morphologyEx(src_gray, src_gray, MORPH_OPEN, getStructuringElement(0, Size(8, 8), Point(0, 0)));
 		blur(src_gray, edge, Size(3, 3));
 		Canny(edge, edge, 30, 90, 3);
 		dstMat = Scalar::all(0);
 		src_gray.copyTo(dstMat, edge);
 
+		//霍夫圆变换
 		vector<Vec3f> circles;
 		HoughCircles(dstMat, circles, CV_HOUGH_GRADIENT, 1, dstMat.rows / 3, 100, 30, 2, 58);
 		
 		cvtColor(edge, src_rgb, CV_GRAY2RGB);
 		//cout << circles.size() << endl;
-		int nCols = src_rgb .cols;
+		//int nCols = src_rgb .cols;
 		//cout << nCols << endl;
 		resInfo.direction = 0.0;
 		for (size_t i = 0; i < circles.size(); i++)
@@ -113,7 +132,7 @@ void UniRobot::imageProcess()
 
 		/****************************/
 
-        //update the resInfo
+        //update the 0resInfo
 		
 		if (circles.size() == 1 && circles[0][2] > 1) {
 			resInfo.ball_x = cvRound(circles[0][0]);
@@ -309,126 +328,139 @@ void UniRobot::run()
       //kick ball
       if(mode == MODE_BALL) // mode ball 
       {
-		  resInfo.door = -1;
-		  cout << resInfo.head << endl;
-		  cout << resInfo.ball_y << endl;
-		  cout << 0.18 - (resInfo.ball_y - 50) / 1000.0 << endl;
-		  if (resInfo.head < 0.001) { resInfo.head = 0.50; }
-		  if (resInfo.ball_found)
-		  {
-			  mEyeLED->set(0x0000FF);
-			  if (resInfo.ball_y < 40) 
-			  {
-				  resInfo.head = 0.45;
-			  }
-			  else if (resInfo.ball_y > 180)
-			  {
-				  resInfo.head = 0.15;
-			  }
-			  else 
-			  {
-				  resInfo.head = 0.30;
-			  }
-			  //cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.18 - (resInfo.ball_y - 50) / 800.0 << endl;
-			  resInfo.stepcount = resInfo.stepcount * 24.0 / 25.0;
-			  if (resInfo.ball_y >= 210 && 0.18 - (resInfo.ball_y - 50) / 1000.0 < 0.01) // if the ball is close enough
-			  {
-				  mGaitManager->setXAmplitude(0.8);
-				  mGaitManager->step(mTimeStep);
-				  mGaitManager->stop();
-				  //wait(500);
-				  headPosition = clamp(0.8, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-				  mMotors[19]->setPosition(headPosition);
-				  /*
-				  mGaitManager->start();
-				  do {
-					  DoorFinder();
-					  mGaitManager->setMoveAimOn(1);
-					  mGaitManager->setXAmplitude(1.0);
-					  mGaitManager->setYAmplitude(0.0);
-					  mGaitManager->setAAmplitude(1.0);
-					  mGaitManager->step(mTimeStep);
-					  myStep();
-				  } while (resInfo.door >= 160 || resInfo.door <= 0);
-					//cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
-					mGaitManager->stop();
-					wait(500);*/
-
-				  int neck;
-				  cout << "mid:\t";
-					DoorFinder();
-					wait(500);
-					if (resInfo.door < 0) {
-						neckPosition = clamp(1, minMotorPositions[19], maxMotorPositions[19]);// watch left
-						mMotors[18]->setPosition(neckPosition);
-						wait(500);
-						cout << "left:\t";
-						DoorFinder();
-						neckPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]);
-						mMotors[18]->setPosition(neckPosition);
-						wait(500);
-						if (resInfo.door < 0) {
-							neckPosition = clamp(-1, minMotorPositions[19], maxMotorPositions[19]);// watch right
-							mMotors[18]->setPosition(neckPosition);
-							wait(500);
-							cout << "right:\t";
-							DoorFinder();
-							neckPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]);
-							mMotors[18]->setPosition(neckPosition);
-							wait(500);
-
-							if (resInfo.door < 0) {
-								neck = 2; // door not found
-								neckPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]);
-								mMotors[18]->setPosition(neckPosition);
-								wait(500);
-							}
-							else {
-								neck = -1;
-								cout << "right get\n";
-							}
-						}
-						else {
-							neck = 1;
-							cout << "left get\n";
-						}
-					}
-					else {
-						neck = 0;
-						cout << "mid get\n";
-					}
-
-					if (neck == 1 || (resInfo.door < 160 && resInfo.door > 0 && !neck)) {
-						mMotionManager->playPage(12); // right kick
-						cout << "right kick!\n";
-					}						
-					else if(neck < 0 || neck == 2|| (resInfo.door >= 160 && !neck)){
-						mMotionManager->playPage(13); // left kick
-						cout << "left kick!\n";
-					}
-					mMotionManager->playPage(9); // walkready position
-					mGaitManager->start();
-					cout << "kick";
-					resInfo.head = 0.40;
-			  }
-				  mGaitManager->setXAmplitude(1.0);
-				  headPosition = clamp(resInfo.head, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-			  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
-			  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
-			  //resInfo.head = 0.40;
-			  //headPosition = clamp(resInfo.stepcount / 5000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+		  if (began < 200) 
+		  {  
+			began++; 
+			mGaitManager->setXAmplitude(1.0);
+			mGaitManager->setYAmplitude(0.0);
+			mGaitManager->setAAmplitude(0.0);
+			cout << began;
 		  }
 		  else {
-				mEyeLED->set(0x00FF00);
-				resInfo.stepcount++;
-				//cout << resInfo.stepcount<<"\t"<< 400.0 / resInfo.stepcount << endl;
-				mGaitManager->setXAmplitude(0.0);
-				mGaitManager->setYAmplitude(0.0);
-				//mGaitManager->setAAmplitude(400.0 / resInfo.stepcount);
-				mGaitManager->setAAmplitude(1.0);
-				mGaitManager->setMoveAimOn(0);
-				headPosition = clamp(resInfo.head, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
-				resInfo.head -= 0.01/40.0;
+			  resInfo.door = -1;
+			  //cout << resInfo.head << endl;
+			  //cout << resInfo.ball_y << endl;
+			  //cout << 0.18 - (resInfo.ball_y - 50) / 1000.0 << endl;
+			  if (resInfo.head < 0.001) { resInfo.head = 0.50; }
+			  if (resInfo.ball_found)
+			  {
+				  mEyeLED->set(0x0000FF);
+				  if (resInfo.ball_y < 40)
+				  {
+					  resInfo.head = 0.45;
+				  }
+				  if (resInfo.ball_y > 180)
+				  {
+					  resInfo.head = 0.01;
+				  }
+				  if (resInfo.ball_y < 140 && resInfo.ball_y > 40)
+				  {
+					  resInfo.head = 0.30;
+				  }
+				  if (resInfo.ball_y > 140 && resInfo.ball_y < 180)
+				  {
+					  resInfo.head = 0.15;
+				  }
+				  //cout << "Found!\t"<<resInfo.ball_y <<"\t"<< 0.18 - (resInfo.ball_y - 50) / 800.0 << endl;
+				  resInfo.stepcount = resInfo.stepcount * 24.0 / 25.0;
+				  if (resInfo.ball_y >= 215) // if the ball is close enough
+				  {
+					  mGaitManager->setXAmplitude(0.5);
+					  mGaitManager->stop();
+					  //wait(500);
+					  headPosition = clamp(0.8, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+					  mMotors[19]->setPosition(headPosition);
+					  wait(500);
+					  /*
+					  mGaitManager->start();
+					  do {
+						  DoorFinder();
+						  mGaitManager->setMoveAimOn(1);
+						  mGaitManager->setXAmplitude(1.0);
+						  mGaitManager->setYAmplitude(0.0);
+						  mGaitManager->setAAmplitude(1.0);
+						  mGaitManager->step(mTimeStep);
+						  myStep();
+					  } while (resInfo.door >= 160 || resInfo.door <= 0);
+						//cout << "kick!" << resInfo.ball_y << "\t" << resInfo.ball_x << endl;
+						mGaitManager->stop();
+						wait(500);*/
+
+					  int neck;
+					  cout << "mid:\t";
+					  DoorFinder();
+					  wait(500);
+					  if (resInfo.door < 0) {
+						  neckPosition = clamp(1, minMotorPositions[19], maxMotorPositions[19]);// watch left
+						  mMotors[18]->setPosition(neckPosition);
+						  wait(500);
+						  cout << "left:\t";
+						  DoorFinder();
+						  neckPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]);
+						  mMotors[18]->setPosition(neckPosition);
+						  wait(500);
+						  if (resInfo.door < 0) {
+							  neckPosition = clamp(-1, minMotorPositions[19], maxMotorPositions[19]);// watch right
+							  mMotors[18]->setPosition(neckPosition);
+							  wait(500);
+							  cout << "right:\t";
+							  DoorFinder();
+							  neckPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]);
+							  mMotors[18]->setPosition(neckPosition);
+							  wait(500);
+
+							  if (resInfo.door < 0) {
+								  neck = 2; // door not found
+								  neckPosition = clamp(0, minMotorPositions[19], maxMotorPositions[19]);
+								  mMotors[18]->setPosition(neckPosition);
+								  wait(500);
+							  }
+							  else {
+								  neck = -1;
+								  cout << "right get\n";
+							  }
+						  }
+						  else {
+							  neck = 1;
+							  cout << "left get\n";
+						  }
+					  }
+					  else {
+						  neck = 0;
+						  cout << "mid get\n";
+					  }
+
+					  if (neck == 1 || (resInfo.door < 160 && resInfo.door > 0 && !neck)) {
+						  mMotionManager->playPage(12); // right kick
+						  cout << "right kick!\n";
+					  }
+					  else if (neck < 0 || neck == 2 || (resInfo.door >= 160 && !neck)) {
+						  mMotionManager->playPage(13); // left kick
+						  cout << "left kick!\n";
+					  }
+					  mMotionManager->playPage(9); // walkready position
+					  mGaitManager->start();
+					  cout << "kick";
+					  resInfo.head = 0.40;
+				  }
+				  mGaitManager->setXAmplitude(1.0);
+				  headPosition = clamp(resInfo.head, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				  mGaitManager->setYAmplitude(0.0); //y -1.0 ~ 1.0
+				  mGaitManager->setAAmplitude(resInfo.direction); //dir -1.0 ~ 1.0
+				  //resInfo.head = 0.40;
+				  //headPosition = clamp(resInfo.stepcount / 5000.0, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+			  }
+			  else {
+				  mEyeLED->set(0x00FF00);
+				  //resInfo.stepcount++;
+				  //cout << resInfo.stepcount<<"\t"<< 400.0 / resInfo.stepcount << endl;
+				  mGaitManager->setXAmplitude(0.0);
+				  mGaitManager->setYAmplitude(0.0);
+				  mGaitManager->setAAmplitude(1.0);
+				  mGaitManager->setMoveAimOn(0);
+				  headPosition = clamp(resInfo.head, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+				  resInfo.head -= 0.01 / 50.0;
+			  }
 		  }
 		
 		mGaitManager->step(mTimeStep);

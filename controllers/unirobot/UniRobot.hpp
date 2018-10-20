@@ -58,7 +58,7 @@ class UniRobot : public webots::Robot {
 	  double direction;  // -1 is right, 1 is left
 
 	  double door;
-	  double head=0.60;
+	  double head=0.65;
 
 	  int blueline = 0;
 	  double stepcount = 0;
