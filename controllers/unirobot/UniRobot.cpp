@@ -448,7 +448,7 @@ void UniRobot::run()
 		mGaitManager->step(mTimeStep);
         //head control
         neckPosition = clamp(0.0, minMotorPositions[18], maxMotorPositions[18]); //head yaw position
-        headPosition = clamp(0.40, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
+        headPosition = clamp(0.05, minMotorPositions[19], maxMotorPositions[19]); //head pitch position
         mMotors[18]->setPosition(neckPosition);
         mMotors[19]->setPosition(headPosition);
       }
