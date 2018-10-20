@@ -349,9 +349,9 @@ void UniRobot::imageProcess()
 		int fr1=1,fr2=3;
 		int fc1=2,fc2=3;
 		int gr1=1,gr2=2;
-		int gc1=2,gc2=11;
+		int gc1=3,gc2=11;
 		int hr1=1,hr2=2;
-		int hc1=9,hc2=11;
+		int hc1=8,hc2=11;
 		int ir1=13,ir2=14;
 		int ic1=9,ic2=10;
 		int jr1=13,jr2=14;
@@ -362,6 +362,7 @@ void UniRobot::imageProcess()
 		int r31=1,r32=4;
 		int r41=2,r42=5;
 		int r51=2,r52=7;
+	
 		
 		if (binMat.at<uchar>(cr1*nRows / cr2, cc1*nCols / cc2 / 3))//C白
 		{
@@ -491,11 +492,10 @@ void UniRobot::imageProcess()
 		    cv::circle(binMat, indicator, 3, cv::Scalar(255, 0, 0));
 		    resInfo.direction=-1;
 		}
-		if (binMat.at<uchar>(c1*nRows/c2,r11*nCols/r12/3)||binMat.at<uchar>(c1*nRows/c2,r21*nCols/r22/3)||binMat.at<uchar>(c1*nRows/c2,r31*nCols/r32/3)||binMat.at<uchar>(c1*nRows/c2,r41*nCols/r42/3)||binMat.at<uchar>(c1*nRows/c2,r51*nCols/r52/3))
+		if (binMat.at<uchar>(c1*nRows/c2,r11*nCols/r12/3)||binMat.at<uchar>(c1*nRows/c2,r21*nCols/r22/3)||binMat.at<uchar>(c1*nRows/c2,r31*nCols/r32/3))
 		{
 		    resInfo.direction = (nCols / 6 - mid[11 * nRows / 12].x) / 190.0;
 		}
-		
 		showImage(binMat.data);
 		binMat.release();
         //update the resInfo
