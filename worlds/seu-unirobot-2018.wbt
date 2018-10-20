@@ -8,8 +8,8 @@ WorldInfo {
   basicTimeStep 16
 }
 Viewpoint {
-  orientation 0.9999011094041914 -0.010246858217293958 -0.009631890206077302 4.707008847967331
-  position -1.6655186536849413 24.09678078403688 0.9394991280658581
+  orientation 0.8226845327261839 0.5602133063546402 0.09670165973913092 5.876584006378907
+  position -3.043088840212159 6.960825661890202 12.66780385235515
   follow "ROBOTIS OP2"
 }
 Background {
@@ -29,13 +29,12 @@ DirectionalLight {
   intensity 0.7
 }
 Field {
-  #frame1Color 0.9 0.8 0.2
 }
 DEF ROBOTISOP2 RobotisOp2 {
-  translation -0.75 0.233277 2.85
-  rotation 0 1 0 -1.57
+  translation -1 0.23 0
+  rotation 0 1 0 1.5707996938995747
   controller "unirobot"
-  controllerArgs "2"
+  controllerArgs "1"
   cameraWidth 320
   cameraHeight 240
 }
